@@ -1,0 +1,29 @@
+# Pliki i katalogi Django
+__pycache__
+*.pyc
+*.pyo
+*.db.sqlite3
+*.log
+
+# Katalog generowany przez Python
+__pycache__/
+
+# Katalogi generowane przez Django
+media/
+staticfiles/
+db.sqlite3
+
+# Środowiska wirtualne (jeśli używasz virtualenv)
+venv/
+env/
+*.env
+
+# Katalogi projektu IDE i pliki konfiguracyjne
+.idea/
+.vscode/
+*.code-workspace
+
+# Pliki konfiguracyjne systemu operacyjnego
+.DS_Store
+Thumbs.db
+
