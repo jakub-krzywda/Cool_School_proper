@@ -56,7 +56,7 @@ ROOT_URLCONF = 'CoolSchool.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['articles_app/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
