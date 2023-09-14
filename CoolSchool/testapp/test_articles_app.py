@@ -15,4 +15,4 @@ class ArticlesTestCase(LiveServerTestCase):
     def test_index_template_render(self):
         client = Client()
         response = client.get(self.live_server_url)
-        self.assertTemplateUsed(response, 'articles_app/index.html')
+        self.assertTemplateUsed(response, 'index.html')
