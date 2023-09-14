@@ -7,7 +7,7 @@ __pycache__
 
 # Katalog generowany przez Python
 __pycache__/
-
+*/__pycache__/*
 # Katalogi generowane przez Django
 media/
 staticfiles/
@@ -27,3 +27,4 @@ env/
 .DS_Store
 Thumbs.db
 
+static
