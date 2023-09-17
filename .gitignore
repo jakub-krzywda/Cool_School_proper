@@ -1,5 +1,5 @@
 # Pliki i katalogi Django
-__pycache__
+*/__pycache__
 *.pyc
 *.pyo
 *.db.sqlite3
@@ -27,3 +27,6 @@ env/
 .DS_Store
 Thumbs.db
 
+static_root
+static
+*/__pycache__/*
