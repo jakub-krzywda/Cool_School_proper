@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.conf.urls.static import static
-
+from articles_app.admin import admin_site
 """
 URL configuration for CoolSchool project.
 
@@ -21,8 +21,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin_site.urls),
     path("", include("articles_app.urls")),
 ]
-
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
