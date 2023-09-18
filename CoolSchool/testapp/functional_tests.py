@@ -97,7 +97,6 @@ class FunctionalTests(LiveServerTestCase):
         error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
         self.assertIn("Please enter the correct username and password", error.text)
 
-    @unittest.expectedFailure
     def test_adding_article(self):
         """
         1. User comes to <live_server_url>/admin
@@ -209,7 +208,7 @@ class FunctionalTests(LiveServerTestCase):
 
         time.sleep(5)
 
-        #TODO
+        # TODO
         # 13. User is presented with a list of articles with Title as entered before
         # 14. User clicks on the article
         # 15. Same view is presented but with additional "usuń"(delete) button

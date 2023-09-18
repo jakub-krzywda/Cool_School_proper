@@ -1,5 +1,7 @@
 from django.test import LiveServerTestCase, Client
+from articles_app.admin import admin_site
 from django.contrib.staticfiles import finders
+from .models import Page, Article
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -23,3 +25,7 @@ class ArticlesAppTests(LiveServerTestCase):
         for static_file in static_files:
             result = finders.find(static_file)
             self.assertIsNotNone(result, f'Plik statyczny {static_file} nie istnieje.')
+
+    def test_models_registered_correctly(self):
+        self.assertIn(Page, admin_site._registry)
+        self.assertIn(Article, admin_site._registry)
