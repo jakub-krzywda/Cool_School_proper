@@ -2,10 +2,16 @@ from django.test import LiveServerTestCase, Client
 from articles_app.admin import admin_site
 from django.contrib.staticfiles import finders
 from .models import Page, Article
+from django.contrib.auth.models import User
 
 
 class ArticlesAppTests(LiveServerTestCase):
-    def setUp(self) -> None:
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            username='admin',
+            password='password',
+            email='admin@example.com'
+        )
         self.client = Client()
 
     def tearDown(self) -> None:
@@ -29,3 +35,9 @@ class ArticlesAppTests(LiveServerTestCase):
     def test_models_registered_correctly(self):
         self.assertIn(Page, admin_site._registry)
         self.assertIn(Article, admin_site._registry)
+
+    def test_admin_template_render_with_login(self):
+        logged_in = self.client.login(username='admin', password='password')
+        self.assertTrue(logged_in, "User not logged in correctly")
+        response = self.client.get('/admin/')
+        self.assertTemplateUsed(response, 'admin/admin.html')
