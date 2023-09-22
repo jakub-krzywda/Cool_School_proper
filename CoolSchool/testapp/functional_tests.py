@@ -95,8 +95,8 @@ class FunctionalTests(LiveServerTestCase):
         password = "testPassword"
         User.objects.create_superuser(login, 'myemail@test.com', password)
         self.login_admin(login, password)
-        header = self.browser.find_element(By.XPATH, "//a[@href='/admin/']")
-        self.assertEqual(header.text, "Cool School Admin Page")
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
 
     def test_user_comes_to_admin_site_negative(self):
         """
