@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cool School</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic&subset=latin,latin-ext'
+          rel='stylesheet'
+          type='text/css'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static '/favicon.ico' %}">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid" id="nav_top">
+        <a class="navbar-brand" href="#">
+
+            <img id="imgLogo" src="{% static 'img/logo2.png' %}"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse mx-5" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <p class="nav-link admin_welcome">Witaj, {{ user.username }}!</p>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="{% url 'index' %}  }">Zobacz stronę</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="change_pass">Zmień hasło</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="Logout">Wyloguj</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+        </div>
+        <div class="col-8">
+            <h1 id="admin_title">Strona Admina Cool School</h1>
+            <div class="container" id="content">
+                <h2>Poniżej wybierz stronę na którą chcesz dodać artykuł</h2>
+                <p id="pages_caption">Strony</p>
+                <ul>
+                    <li class="page_name">Główna<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Aktualności<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Kursy<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Regulamin<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Polityka_Prywatności<button class="addlink">Dodaj</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-2">
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
