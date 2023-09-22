@@ -125,88 +125,92 @@ class FunctionalTests(LiveServerTestCase):
         19. User is back on Article list for selected site page
         20. User closes browser
         """
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, password)
-        header = self.browser.find_element(By.XPATH, "//a[@href='/admin/']")
-        self.assertEqual("Strona Admina Cool School", header.text)
-        user_tools = self.browser.find_element(By.ID, 'user-tools')
-        self.assertIn(f'Witaj, {login.upper()}', user_tools.text)
-        user_tools_links = self.browser.find_elements(By.XPATH, "//*[@id='user-tools']/a")
-        user_tools_buttons = self.browser.find_elements(By.XPATH,
-                                                        "//*[@id='user-tools']/form[@id='logout-form']//button")
-        expected_tools_a = ('Zobacz stronę', 'Zmień hasło')
-        expected_buttons = 'Wyloguj'
-        found_links = [item.accessible_name for item in user_tools_links]
-        found_buttons = [item.accessible_name for item in user_tools_buttons]
+        try:
+            login = "testUser"
+            password = "testPassword"
+            User.objects.create_superuser(login, 'myemail@test.com', password)
+            self.login_admin(login, password)
+            header = self.browser.find_element(By.XPATH, "//a[@href='/admin/']")
+            self.assertEqual("Strona Admina Cool School", header.text)
+            user_tools = self.browser.find_element(By.ID, 'user-tools')
+            self.assertIn(f'WITAJ, {login.upper()}', user_tools.text)
+            user_tools_links = self.browser.find_elements(By.XPATH, "//*[@id='user-tools']/a")
+            user_tools_buttons = self.browser.find_elements(By.XPATH,
+                                                            "//*[@id='user-tools']/form[@id='logout-form']//button")
+            expected_tools_a = ('POKAŻ STRONĘ', 'ZMIEŃ HASŁO')
+            expected_buttons = 'WYLOGUJ SIĘ'
+            found_links = [item.accessible_name for item in user_tools_links]
+            found_buttons = [item.accessible_name for item in user_tools_buttons]
 
-        for a in expected_tools_a:
-            self.assertIn(a, found_links)
+            for a in expected_tools_a:
+                self.assertIn(a, found_links)
 
-        self.assertIn(expected_buttons, found_buttons)
+            self.assertIn(expected_buttons, found_buttons)
 
-        subheader = self.browser.find_element(By.XPATH, "//div[@id='content']//h1")
-        self.assertEqual("Poniżej wybierz stronę na którą chcesz dodać artykuł i kliknij dodaj", subheader.text)
+            subheader = self.browser.find_element(By.XPATH, "//div[@id='content']//h1")
+            self.assertEqual("Poniżej wybierz stronę na którą chcesz dodać artykuł i kliknij dodaj", subheader.text)
 
-        caption = self.browser.find_element(By.XPATH, "//div[@class='app-articles_app module']//table//caption//a")
-        self.assertEqual(caption.text, 'Strony')
+            caption = self.browser.find_element(By.XPATH, "//div[@class='app-articles_app module']//table//caption//a")
+            self.assertEqual(caption.text, 'Strony')
 
-        pages = self.browser.find_elements(By.XPATH, "//tbody//tr//th//a")
-        page_names = [a.text for a in pages]
-        expected_names = ('Główna', 'Aktualności', 'Kursy', 'Regulamin', 'Polityka_Prywatności')
-        for name in page_names:
-            self.assertIn(name, expected_names)
+            pages = self.browser.find_elements(By.XPATH, "//tbody//tr//th//a")
+            page_names = [a.text for a in pages]
+            expected_names = ('Główna', 'Aktualności', 'Kursy', 'Regulamin', 'Polityka_Prywatności')
+            for name in page_names:
+                self.assertIn(name, expected_names)
 
-        add_links = self.browser.find_elements(By.XPATH,
-                                               "//div[@class='app-articles_app module']//table//tbody//tr//td//a[@class='addlink']")
+            add_links = self.browser.find_elements(By.XPATH,
+                                                   "//div[@class='app-articles_app module']//table//tbody//tr//td//a[@class='addlink']")
 
-        add_links_names = [a.text for a in add_links]
+            add_links_names = [a.text for a in add_links]
 
-        for add_link in add_links_names:
-            self.assertEqual(add_link, 'Dodaj')
+            for add_link in add_links_names:
+                self.assertEqual(add_link, 'Dodaj')
 
-        change_links = self.browser.find_elements(By.XPATH,
-                                                  "//div[@class='app-articles_app module']//table//tbody//tr//td//a[@class='changelink']")
+            change_links = self.browser.find_elements(By.XPATH,
+                                                      "//div[@class='app-articles_app module']//table//tbody//tr//td//a[@class='changelink']")
 
-        change_links_names = [a.text for a in change_links]
+            change_links_names = [a.text for a in change_links]
 
-        for change_link in change_links_names:
-            self.assertEqual(change_link, 'Edytuj')
+            for change_link in change_links_names:
+                self.assertEqual(change_link, 'Edytuj')
 
-        add_links[0].click()
+            add_links[0].click()
 
-        time.sleep(2)
+            time.sleep(2)
 
-        title_label = self.browser.find_element(By.XPATH, "//label[@for='id_title']").text
-        content_label = self.browser.find_element(By.XPATH, "//label[@for='id_content']").text
+            title_label = self.browser.find_element(By.XPATH, "//label[@for='id_title']").text
+            content_label = self.browser.find_element(By.XPATH, "//label[@for='id_content']").text
 
-        self.assertEqual('Tytuł', title_label)
-        self.assertEqual('Zawartość', content_label)
+            self.assertEqual('Tytuł', title_label)
+            self.assertEqual('Zawartość', content_label)
 
-        title_form = self.browser.find_element(By.ID, 'id_title')
-        content_form = self.browser.find_element(By.ID, 'id_content')
+            title_form = self.browser.find_element(By.ID, 'id_title')
+            content_form = self.browser.find_element(By.ID, 'id_content')
 
-        title_form.click()
-        time.sleep(1)
-        title_form.send_keys('Title')
-        time.sleep(1)
-        content_form.click()
-        time.sleep(1)
-        content_form.send_keys('Content')
-        time.sleep(1)
+            title_form.click()
+            time.sleep(1)
+            title_form.send_keys('Title')
+            time.sleep(1)
+            content_form.click()
+            time.sleep(1)
+            content_form.send_keys('Content')
+            time.sleep(1)
 
-        save_buttons = self.browser.find_elements(By.XPATH, "//input[@type='submit']")
-        save_buttons_values = [button.accessible_name for button in save_buttons]
+            save_buttons = self.browser.find_elements(By.XPATH, "//input[@type='submit']")
+            save_buttons_values = [button.accessible_name for button in save_buttons]
 
-        expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
-                                 "Zapisz i kontynuuj edycje")
-        for button_value in save_buttons_values:
-            self.assertIn(button_value, expected_button_names)
+            expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
+                                     "Zapisz i kontynuuj edycje")
+            for button_value in save_buttons_values:
+                self.assertIn(button_value, expected_button_names)
 
-        save_buttons[0].click()
+            save_buttons[0].click()
 
-        time.sleep(5)
+            time.sleep(5)
+        except AssertionError as e:
+            time.sleep(10)
+            raise e
 
         # TODO
         # 13. User is presented with a list of articles with Title as entered before
