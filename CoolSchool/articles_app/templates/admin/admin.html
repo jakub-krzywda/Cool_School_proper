@@ -19,10 +19,31 @@
         crossorigin="anonymous"></script>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid" id="nav_top">
-        <a class="navbar-brand" href="/admin/">
+        <a class="navbar-brand" href="#">
 
-            <img id="imgLogo" src="{% static 'img/logo2.png' %}">Strona Admina Cool School</a>
-
+            <img id="imgLogo" src="{% static 'img/logo2.png' %}"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse mx-5" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <p class="nav-link admin_welcome">Witaj, {{ user.username }}!</p>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="{% url 'index' %}  }">Zobacz stronę</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="change_pass">Zmień hasło</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link admin_welcome" href="Logout">Wyloguj</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </nav>
 <div class="container">
@@ -30,8 +51,18 @@
         <div class="col-2">
         </div>
         <div class="col-8">
-
-
+            <h1 id="admin_title">Strona Admina Cool School</h1>
+            <div class="container" id="content">
+                <h2>Poniżej wybierz stronę na którą chcesz dodać artykuł</h2>
+                <p id="pages_caption">Strony</p>
+                <ul>
+                    <li class="page_name">Główna<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Aktualności<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Kursy<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Regulamin<button class="addlink">Dodaj</button></li>
+                    <li class="page_name">Polityka_Prywatności<button class="addlink">Dodaj</button></li>
+                </ul>
+            </div>
         </div>
         <div class="col-2">
         </div>

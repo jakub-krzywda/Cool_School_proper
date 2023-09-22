@@ -41,3 +41,7 @@ class ArticlesAppTests(LiveServerTestCase):
         self.assertTrue(logged_in, "User not logged in correctly")
         response = self.client.get('/admin/')
         self.assertTemplateUsed(response, 'admin/admin.html')
+
+    # TODO
+    def test_name_of_pages_are_loaded_from_variables(self):
+        pass
