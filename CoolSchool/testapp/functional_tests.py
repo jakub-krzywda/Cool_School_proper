@@ -8,6 +8,22 @@ import time
 from selenium.webdriver.common.by import By
 
 
+def wait_after_fail(func):
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            if hasattr(e, 'msg'):
+                input(f'\033[31mTest failed.\n {e.msg}\033[0m\n Press any key to exit')
+                LiveServerTestCase.fail(e)
+            elif hasattr(e, 'args'):
+                input(f'\033[31mTest failed.\n {e.args[0]}\033[0m\n Press any key to exit')
+                LiveServerTestCase.fail(e)
+            else:
+                LiveServerTestCase.fail(e)
+
+    return wrapper
+
 class FunctionalTests(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -95,8 +111,9 @@ class FunctionalTests(LiveServerTestCase):
         User.objects.create_superuser(login, 'myemail@test.com', password)
         self.login_admin(login, 'wrong_pass')
         error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
-        self.assertIn("Please enter the correct username and password", error.text)
+        self.assertIn("Wprowadź poprawne dane w polach ", error.text)
 
+    @wait_after_fail
     def test_adding_article(self):
         """
         1. User comes to <live_server_url>/admin
