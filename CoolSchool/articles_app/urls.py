@@ -19,5 +19,10 @@ Including another URLconf
 """
 
 urlpatterns = [
-    path("", views.index, name="index")
+    path("", views.index, name="index"),
+    path('add_article/main/', views.add_main, name="add_main"),
+    path('add_article/add_news/', views.add_news, name="add_news"),
+    path('add_article/add_courses/', views.add_courses, name="add_courses"),
+    path('add_article/add_regulamin/', views.add_regulamin, name="add_regulamin"),
+    path('add_article/add_privacy_policy/', views.add_privacy_policy, name="add_privacy_policy"),
 ]

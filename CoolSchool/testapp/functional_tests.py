@@ -1,3 +1,4 @@
+import random
 import unittest
 
 from django.test import LiveServerTestCase
@@ -113,7 +114,7 @@ class FunctionalTests(LiveServerTestCase):
         error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
         self.assertIn("Wprowadź poprawne dane w polach ", error.text)
 
-    # @wait_after_fail
+    @wait_after_fail
     def test_adding_article(self):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
@@ -151,21 +152,27 @@ class FunctionalTests(LiveServerTestCase):
         #                                                                 Polityka_Prywatności]
         pages = self.browser.find_elements(By.XPATH, "//ul/li[@class=page_name]")
         page_names = [a.text for a in pages]
-        expected_names = ('Główna', 'Aktualności', 'Kursy', 'Regulamin', 'Polityka_Prywatności')
+        expected_names = ('Główna', 'Aktualności', 'Kursy', 'Regulamin', 'Polityka Prywatności')
         for name in page_names:
             self.assertIn(name, expected_names)
 
         # 10. In each page's row there is "Dodaj" (add) button
         add_links = self.browser.find_elements(By.XPATH,
-                                               "//ul/li[@class='page_name']//button[@class='addlink']")
+                                               "//ul/li[@class='page_name']//a[@class='addlink']")
         add_links_names = [a.text for a in add_links]
         for add_link in add_links_names:
-            self.assertEqual(add_link, 'Dodaj')
+            self.assertIn(add_link, expected_names)
 
-        add_links[0].click()
+        random_page_num = random.randint(0, len(expected_names)-1)
+
+        add_links[random_page_num].click()
         time.sleep(sleep_time)
 
-        # 11. After clicking "Dodaj" User is presented with Page where (s)he can add new article with such parameters as:
+        # 11. After clicking "Dodaj" User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
+        edit_page_title = self.browser.find_element(By.ID, "edit_page_title")
+        self.assertEqual(edit_page_title.text, expected_names[random_page_num])
+
+        # 11.1 There is a form where (s)he can add new article with such parameters as:
         #     [Tytuł(title), Zawartość(content)] and buttons "Zapisz"(save), "Zapisz i dodaj kolejny"(save and add next),
         #     "Zapisz i kontynuuj edycje" (save and continue editing)
         title_label = self.browser.find_element(By.XPATH, "//label[@for='id_title']").text
@@ -216,4 +223,8 @@ class FunctionalTests(LiveServerTestCase):
 
     def test_logged_user_clicks_on_show_page(self):
         # TODO
+        pass
+
+    #TODO
+    def test_admin_logout(self):
         pass
