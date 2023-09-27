@@ -24,3 +24,19 @@ def add_regulamin(request):
 
 def add_privacy_policy(request):
     return render(request, 'edit_page.html', context={'page_name': 'Polityka Prywatności'})
+
+
+def news(request):
+    pass
+
+
+def courses(request):
+    pass
+
+
+def regulamin(request):
+    pass
+
+
+def privacy_policy(request):
+    pass

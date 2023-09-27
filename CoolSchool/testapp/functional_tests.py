@@ -163,7 +163,7 @@ class FunctionalTests(LiveServerTestCase):
         for add_link in add_links_names:
             self.assertIn(add_link, expected_names)
 
-        random_page_num = random.randint(0, len(expected_names)-1)
+        random_page_num = random.randint(0, len(expected_names) - 1)
 
         add_links[random_page_num].click()
         time.sleep(sleep_time)
@@ -221,10 +221,18 @@ class FunctionalTests(LiveServerTestCase):
         # 19. User is back on Article list for selected site page
         # 20. User closes browser
 
+    # TODO
     def test_logged_user_clicks_on_show_page(self):
-        # TODO
         pass
 
-    #TODO
+    # TODO
     def test_admin_logout(self):
+        pass
+
+    # TODO
+    def test_edit_page_available_only_for_logged_in_superuser(self):
+        pass
+
+    # TODO
+    def test_clicking_on_navbar_items_redirects_to_pages(self):
         pass

@@ -3,6 +3,8 @@ from articles_app.admin import admin_site
 from django.contrib.staticfiles import finders
 from .models import Page, Article
 from django.contrib.auth.models import User
+from lxml import html
+from random import randint
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -13,6 +15,19 @@ class ArticlesAppTests(LiveServerTestCase):
             email='admin@example.com'
         )
         self.client = Client()
+        self.page_name_edit_url_dict = {'Główna': '/add_article/main/',
+                                        'Aktualności': '/add_article/add_news/',
+                                        'Kursy': '/add_article/add_courses/',
+                                        'Regulamin': '/add_article/add_regulamin/',
+                                        'Polityka Prywatności': '/add_article/add_privacy_policy/'}
+
+        self.page_name_url_dict = {'Główna': '',
+                                   'Aktualności': 'news/',
+                                   'Kursy': 'courses/',
+                                   'Regulamin': 'regulamin/',
+                                   'Polityka Prywatności': 'privacy_policy/'}
+
+        self.admin_url = self.live_server_url + '/admin/'
 
     def tearDown(self) -> None:
         pass
@@ -42,6 +57,48 @@ class ArticlesAppTests(LiveServerTestCase):
         response = self.client.get('/admin/')
         self.assertTemplateUsed(response, 'admin/admin.html')
 
-    # TODO
-    def test_name_of_pages_are_loaded_from_variables(self):
-        pass
+    def test_name_of_pages_are_loaded_from_database(self):
+        logged_in = self.client.login(username='admin', password='password')
+        self.assertTrue(logged_in, "User not logged in correctly")
+        pages = []
+        for page_name in self.page_name_url_dict.keys():
+            url = self.page_name_url_dict[page_name]
+            edit_url = self.page_name_edit_url_dict[page_name]
+            pages.append(Page.objects.create(title=page_name, page_url=url,
+                                             edit_url=edit_url))
+            self.assertIsNotNone(Page.objects.get(title=page_name))
+            self.assertEqual(pages[-1].title, page_name)
+            self.assertEqual(pages[-1].page_url, url)
+            self.assertEqual(pages[-1].edit_url, edit_url)
+
+        response = self.client.get(self.admin_url)
+        if response.status_code == 200:
+            admin_site_tree = html.fromstring(response.content)
+            add_links = admin_site_tree.xpath("//a[@class='addlink']")
+            for link, page in zip(add_links, pages):
+                self.assertEqual(link.attrib['href'], page.edit_url)
+                self.assertEqual(link.text, page.title)
+        else:
+            raise AssertionError(f'Cannot get admin page. Status code {response.status_code}')
+
+        rng = randint(0, len(pages))
+        random_page = pages[rng]
+        random_page.title = 'NEW_TITLE'
+        random_page.save()
+
+        response = self.client.get(self.admin_url)
+        if response.status_code == 200:
+            admin_site_tree = html.fromstring(response.content)
+            add_links = admin_site_tree.xpath("//a[@class='addlink']")
+            link = add_links[rng]
+            self.assertEqual(link.attrib['href'], random_page.edit_url)
+            self.assertEqual(link.text, random_page.title)
+        else:
+            raise AssertionError(f'Cannot get admin page after modification. Status code {response.status_code}')
+
+
+# TODO
+def test_admin_logout(self):
+    logged_in = self.client.login(username='admin', password='password')
+    self.assertTrue(logged_in, "User not logged in correctly")
+    response = self.client.get('/admin/')
