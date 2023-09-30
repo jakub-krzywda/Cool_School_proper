@@ -5,6 +5,7 @@ from .models import Page, Article
 from django.contrib.auth.models import User
 from lxml import html
 from random import randint
+from CoolSchool import settings
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -15,18 +16,6 @@ class ArticlesAppTests(LiveServerTestCase):
             email='admin@example.com'
         )
         self.client = Client()
-        self.page_name_edit_url_dict = {'Główna': '/add_article/main/',
-                                        'Aktualności': '/add_article/add_news/',
-                                        'Kursy': '/add_article/add_courses/',
-                                        'Regulamin': '/add_article/add_regulamin/',
-                                        'Polityka Prywatności': '/add_article/add_privacy_policy/'}
-
-        self.page_name_url_dict = {'Główna': '',
-                                   'Aktualności': 'news/',
-                                   'Kursy': 'courses/',
-                                   'Regulamin': 'regulamin/',
-                                   'Polityka Prywatności': 'privacy_policy/'}
-
         self.admin_url = self.live_server_url + '/admin/'
 
     def tearDown(self) -> None:
@@ -61,13 +50,14 @@ class ArticlesAppTests(LiveServerTestCase):
         logged_in = self.client.login(username='admin', password='password')
         self.assertTrue(logged_in, "User not logged in correctly")
         pages = []
-        for page_name in self.page_name_url_dict.keys():
-            url = self.page_name_url_dict[page_name]
-            edit_url = self.page_name_edit_url_dict[page_name]
-            pages.append(Page.objects.create(title=page_name, page_url=url,
-                                             edit_url=edit_url))
-            self.assertIsNotNone(Page.objects.get(title=page_name))
-            self.assertEqual(pages[-1].title, page_name)
+        titles = settings.DEFAULT_PAGES.keys()
+        for title in titles:
+            url = settings.DEFAULT_PAGES[title]['url']
+            edit_url = settings.DEFAULT_PAGES[title]['edit_url']
+            pages.append(Page.objects.get_or_create(title=title, page_url=url,
+                                             edit_url=edit_url)[0])
+            self.assertIsNotNone(Page.objects.get(title=title))
+            self.assertEqual(pages[-1].title, title)
             self.assertEqual(pages[-1].page_url, url)
             self.assertEqual(pages[-1].edit_url, edit_url)
 
@@ -81,7 +71,7 @@ class ArticlesAppTests(LiveServerTestCase):
         else:
             raise AssertionError(f'Cannot get admin page. Status code {response.status_code}')
 
-        rng = randint(0, len(pages))
+        rng = randint(0, len(pages)-1)
         random_page = pages[rng]
         random_page.title = 'NEW_TITLE'
         random_page.save()

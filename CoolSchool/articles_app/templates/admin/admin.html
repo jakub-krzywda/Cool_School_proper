@@ -56,21 +56,9 @@
                 <h2>Poniżej wybierz stronę na którą chcesz dodać artykuł</h2>
                 <p id="pages_caption">Strony</p>
                 <ul>
-                    <li class="page_name">
-                        <a class="addlink" href="{% url 'add_main' %}">Główna</a>
-                    </li>
-                    <li class="page_name">
-                        <a class="addlink" href="{% url 'add_news' %}">Aktualności</a>
-                    </li>
-                    <li class="page_name">
-                        <a class="addlink" href="{% url 'add_courses' %}">Kursy</a>
-                    </li>
-                    <li class="page_name">
-                        <a class="addlink" href="{% url 'add_regulamin' %}">Regulamin</a>
-                    </li>
-                    <li class="page_name">
-                        <a class="addlink" href="{% url 'add_privacy_policy' %}">Polityka Prywatności</a>
-                    </li>
+                    {% for title, url, edit_url in combined %}
+                        <li class="page_name"><a class="addlink" href="{{ edit_url }}">{{ title }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
