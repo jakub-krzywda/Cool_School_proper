@@ -1,4 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import ArticleForm
+from datetime import datetime
+from .models import Article, Page
 
 
 # Create your views here.
@@ -7,7 +10,16 @@ def index(request):
 
 
 def add_main(request):
-    return render(request, 'edit_page.html', context={'page_name': 'Główna'})
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save(commit=False)
+            article.pub_date = datetime.now()
+            article.save()
+            return redirect('index')
+    else:
+        form = ArticleForm()
+    return render(request, 'edit_page.html', context={'page_name': 'Główna', 'form': form})
 
 
 def add_news(request):
@@ -27,7 +39,8 @@ def add_privacy_policy(request):
 
 
 def news(request):
-    pass
+    page = Page.objects.get_or_create(title='news')
+    Article.objects.get(page=page)
 
 
 def courses(request):

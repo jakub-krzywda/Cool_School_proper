@@ -1,6 +1,5 @@
 import random
-import unittest
-
+from unittest import expectedFailure
 from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
 from selenium import webdriver
@@ -96,8 +95,8 @@ class FunctionalTests(LiveServerTestCase):
         password = "testPassword"
         User.objects.create_superuser(login, 'myemail@test.com', password)
         self.login_admin(login, password)
-        header = self.browser.find_element(By.XPATH, "//a[@href='/admin/']")
-        self.assertEqual(header.text, "Cool School Admin Page")
+        header = self.browser.find_element(By.ID, 'admin_title')
+        self.assertEqual(header.text, "Strona Admina Cool School")
 
     def test_user_comes_to_admin_site_negative(self):
         """
@@ -191,46 +190,60 @@ class FunctionalTests(LiveServerTestCase):
         time.sleep(sleep_time)
         content_form.send_keys('Content')
         time.sleep(sleep_time)
-        save_buttons = self.browser.find_elements(By.XPATH, "//input[@type='submit']")
+        save_buttons = self.browser.find_elements(By.XPATH, "//button[@type='submit']")
         save_buttons_values = [button.accessible_name for button in save_buttons]
         expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
                                  "Zapisz i kontynuuj edycje")
-        for button_value in save_buttons_values:
-            self.assertIn(button_value, expected_button_names)
+        self.assertTrue(all([button_value in expected_button_names for button_value in save_buttons_values]),
+                        'Wrong button names')
         save_buttons[0].click()
 
         time.sleep(sleep_time)
-        # TODO
-        # 13. User is presented with a list of arguments with Title as entered before
-        # 14. User clicks on the article
-        # 15. Same view is presented but with additional "usuń"(delete) button
-        # 16. User clicks delete button
-        # 17. User is presented with Confirmation screen with buttons "Tak, jestem pewny"(Yes, I'm sure) i
-        # "Nie, Wróć" (No, take me back)
-        # 18. User clicks on "Tak, jestem pewny"
-        # 19. User is back on Article list for selected site page
-        # 20. User closes browser
-        #
-        # 13. User is presented with a list of articles with Title as entered before
-        # 14. User clicks on the article
-        # 15. Same view is presented but with additional "usuń"(delete) button
-        # 16. User clicks delete button
-        # 17. User is presented with Confirmation screen with buttons "Tak, jestem pewny"(Yes, I'm sure) i
-        # "Nie, Wróć" (No, take me back)
-        # 18. User clicks on "Tak, jestem pewny"
-        # 19. User is back on Article list for selected site page
-        # 20. User closes browser
 
-    # TODO
     def test_logged_user_clicks_on_show_page(self):
-        pass
+        # 1. User comes to admin page using admin url
+        # 2. User is presented with a login page
+        # 3. User enters login and password and clicks enter
+        sleep_time = 0.1
+        login = "testUser"
+        password = "testPassword"
+        User.objects.create_superuser(login, 'myemail@test.com', password)
+        self.login_admin(login, password)
+        # 4. User is presented with admin page
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
+        admin_tools = self.browser.find_elements(By.XPATH, "//a[@class='nav-link admin_welcome']")
+
+        # 5. User clicks on "View site" button
+        view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
+        view_link.click()
+        time.sleep(sleep_time)
+        # 6. User is presented with a main page
+        navbar_nav = self.browser.find_element(By.ID, "navbarNav")
+        self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
+        logo = self.browser.find_element(By.ID, "imgLogo")
+        self.assertEqual(logo.size['height'], 69)
+        self.assertEqual(logo.size['width'], 323)
+        # 7. User closes browser
+        time.sleep(2)
 
     # TODO
     def test_admin_logout(self):
+        # 1. User comes to admin page using admin url
+        # 2. User is presented with a login page
+        # 3. User enters login and password
+        # 4. User is presented with admin page
+        # 5. User clicks logout button in navbar
+        # 6. Site comes back to login page
+        # 7. User closes browser
         pass
 
     # TODO
     def test_edit_page_available_only_for_logged_in_superuser(self):
+        # 1. User is not logged in
+        # 2. User comes to one of the edit urls straight
+        # 3. User is presented with the error screen saying that You must be logged in order to edit pages
+        # 4. User closes browser
         pass
 
     # TODO

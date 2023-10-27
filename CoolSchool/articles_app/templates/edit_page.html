@@ -53,9 +53,18 @@
         <div class="col-8">
             <h1 id="edit_page_title">{{ page_name }}</h1>
             <div class="container" id="content">
-            <form>
-                
-            </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Tytuł</label>
+                        <input type="text" name="title" id="id_title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_content" class="form-label">Zawartość</label>
+                        <input type="text" name="title" id="id_content">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                </form>
             </div>
         </div>
         <div class="col-2">

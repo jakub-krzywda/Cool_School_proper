@@ -55,7 +55,7 @@ class ArticlesAppTests(LiveServerTestCase):
             url = settings.DEFAULT_PAGES[title]['url']
             edit_url = settings.DEFAULT_PAGES[title]['edit_url']
             pages.append(Page.objects.get_or_create(title=title, page_url=url,
-                                             edit_url=edit_url)[0])
+                                                    edit_url=edit_url)[0])
             self.assertIsNotNone(Page.objects.get(title=title))
             self.assertEqual(pages[-1].title, title)
             self.assertEqual(pages[-1].page_url, url)
@@ -71,7 +71,7 @@ class ArticlesAppTests(LiveServerTestCase):
         else:
             raise AssertionError(f'Cannot get admin page. Status code {response.status_code}')
 
-        rng = randint(0, len(pages)-1)
+        rng = randint(0, len(pages) - 1)
         random_page = pages[rng]
         random_page.title = 'NEW_TITLE'
         random_page.save()
@@ -86,9 +86,8 @@ class ArticlesAppTests(LiveServerTestCase):
         else:
             raise AssertionError(f'Cannot get admin page after modification. Status code {response.status_code}')
 
-
-# TODO
-def test_admin_logout(self):
-    logged_in = self.client.login(username='admin', password='password')
-    self.assertTrue(logged_in, "User not logged in correctly")
-    response = self.client.get('/admin/')
+    # TODO
+    def test_admin_logout(self):
+        logged_in = self.client.login(username='admin', password='password')
+        self.assertTrue(logged_in, "User not logged in correctly")
+        response = self.client.get('/admin/')
