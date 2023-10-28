@@ -90,4 +90,5 @@ class ArticlesAppTests(LiveServerTestCase):
     def test_admin_logout(self):
         logged_in = self.client.login(username='admin', password='password')
         self.assertTrue(logged_in, "User not logged in correctly")
+
         response = self.client.get('/admin/')

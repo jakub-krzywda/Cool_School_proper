@@ -1,10 +1,9 @@
 import random
-from unittest import expectedFailure
 from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
 from selenium import webdriver
+from CoolSchool.settings import DEFAULT_PAGES
 import time
-
 from selenium.webdriver.common.by import By
 
 
@@ -29,6 +28,7 @@ class FunctionalTests(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
         self.url_admin = self.live_server_url + '/admin'
+        self.sleep_time = 0.1
 
     def tearDown(self):
         self.browser.quit()
@@ -118,7 +118,6 @@ class FunctionalTests(LiveServerTestCase):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
         # 3. User enters right login and password
-        sleep_time = 0.1
         login = "testUser"
         password = "testPassword"
         User.objects.create_superuser(login, 'myemail@test.com', password)
@@ -165,7 +164,7 @@ class FunctionalTests(LiveServerTestCase):
         random_page_num = random.randint(0, len(expected_names) - 1)
 
         add_links[random_page_num].click()
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
 
         # 11. After clicking "Dodaj" User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
         edit_page_title = self.browser.find_element(By.ID, "edit_page_title")
@@ -183,13 +182,13 @@ class FunctionalTests(LiveServerTestCase):
         title_form = self.browser.find_element(By.ID, 'id_title')
         content_form = self.browser.find_element(By.ID, 'id_content')
         title_form.click()
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
         title_form.send_keys('Title')
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
         content_form.click()
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
         content_form.send_keys('Content')
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
         save_buttons = self.browser.find_elements(By.XPATH, "//button[@type='submit']")
         save_buttons_values = [button.accessible_name for button in save_buttons]
         expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
@@ -198,7 +197,7 @@ class FunctionalTests(LiveServerTestCase):
                         'Wrong button names')
         save_buttons[0].click()
 
-        time.sleep(sleep_time)
+        time.sleep(self.sleep_time)
 
     def test_logged_user_clicks_on_show_page(self):
         # 1. User comes to admin page using admin url
@@ -227,25 +226,56 @@ class FunctionalTests(LiveServerTestCase):
         # 7. User closes browser
         time.sleep(2)
 
-    # TODO
     def test_admin_logout(self):
         # 1. User comes to admin page using admin url
         # 2. User is presented with a login page
         # 3. User enters login and password
+        login = "testUser"
+        password = "testPassword"
+        User.objects.create_superuser(login, 'myemail@test.com', password)
+        self.login_admin(login, password)
         # 4. User is presented with admin page
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
+        admin_tools = self.browser.find_elements(By.XPATH, "//a[@class='nav-link admin_welcome']")
         # 5. User clicks logout button in navbar
+        logout_button = [_ for _ in admin_tools if _.text == 'Wyloguj'][0]
+        logout_button.click()
+        time.sleep(self.sleep_time)
         # 6. Site comes back to login page
+        login_site_name = self.browser.find_element(By.ID, 'site_name')
+        self.assertEqual(login_site_name.text, 'Strona Admina Cool School')
         # 7. User closes browser
-        pass
 
-    # TODO
     def test_edit_page_available_only_for_logged_in_superuser(self):
         # 1. User is not logged in
         # 2. User comes to one of the edit urls straight
-        # 3. User is presented with the error screen saying that You must be logged in order to edit pages
-        # 4. User closes browser
-        pass
+        edit_urls = [v['edit_url'] for k, v in DEFAULT_PAGES.items()]
+        for url in edit_urls:
+            self.browser.get(self.live_server_url + url)
+            time.sleep(2)
+            header = self.browser.find_element(By.XPATH, "//h1")
+            self.assertNotIn(header.text, list(DEFAULT_PAGES.keys()))
 
-    # TODO
+        # 3. User is presented with the error screen saying that You must be logged in order to edit pages
+        error_message = self.browser.find_element(By.ID, "login_needed")
+        self.assertEqual(error_message.text, 'You need admin rights to access this page')
+        # 4. User closes browser
+
     def test_clicking_on_navbar_items_redirects_to_pages(self):
-        pass
+        # 1. User enters live servers url
+        self.browser.get(self.live_server_url)
+        # 2. User is presented with main page
+        self.assertIn('Cool School', self.browser.title)
+        navbar_nav = self.browser.find_element(By.ID, "navbarNav")
+        self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
+        # 3. For every link in navbar
+        #   * User clicks on link
+        #   * User is redirected to page corresponding to that link
+        #   * User verifies if right page is displayed
+        nav_links = self.browser.find_elements(By.XPATH, "//a[@class='nav-link']")
+        for link in nav_links:
+            link.click()
+            self.browser.implicitly_wait(2)
+            self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES[link.text]['url']}")
+        # 4. User closes browser
