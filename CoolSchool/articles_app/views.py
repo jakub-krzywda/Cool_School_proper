@@ -2,13 +2,29 @@ from django.shortcuts import render, redirect
 from .forms import ArticleForm
 from datetime import datetime
 from .models import Article, Page
+from django.contrib.auth.decorators import login_required, user_passes_test
+from CoolSchool import settings
+
+
+def is_superuser(user):
+    return user.is_authenticated and user.is_superuser
 
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html')
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title != 'Główna':
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        else:
+            default_pages_dict.update({page.title: 'index'})
+    print()
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
 
 
+@login_required
+@user_passes_test(is_superuser)
 def add_main(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
@@ -22,34 +38,67 @@ def add_main(request):
     return render(request, 'edit_page.html', context={'page_name': 'Główna', 'form': form})
 
 
+@login_required
+@user_passes_test(is_superuser)
 def add_news(request):
     return render(request, 'edit_page.html', context={'page_name': 'Aktualności'})
 
 
+@login_required
+@user_passes_test(is_superuser)
 def add_courses(request):
     return render(request, 'edit_page.html', context={'page_name': 'Kursy'})
 
 
+@login_required
+@user_passes_test(is_superuser)
 def add_regulamin(request):
     return render(request, 'edit_page.html', context={'page_name': 'Regulamin'})
 
 
+@login_required
+@user_passes_test(is_superuser)
 def add_privacy_policy(request):
     return render(request, 'edit_page.html', context={'page_name': 'Polityka Prywatności'})
 
 
 def news(request):
-    page = Page.objects.get_or_create(title='news')
-    Article.objects.get(page=page)
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', 'Aktualności'):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
 
 
 def courses(request):
-    pass
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', 'Kursy'):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        # else:
+        #     default_pages_dict.update({page.title: 'index'})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
 
 
 def regulamin(request):
-    pass
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', 'Regulamin'):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        # else:
+        #     default_pages_dict.update({page.title: 'index'})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
 
 
 def privacy_policy(request):
-    pass
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', 'Polityka Prywatności'):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        # else:
+        #     default_pages_dict.update({page.title: 'index'})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})

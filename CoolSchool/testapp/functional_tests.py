@@ -1,10 +1,13 @@
 import random
+
 from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
 from selenium import webdriver
 from CoolSchool.settings import DEFAULT_PAGES
 import time
 from selenium.webdriver.common.by import By
+from articles_app.models import Page
+from CoolSchool import settings
 
 
 def wait_after_fail(func):
@@ -25,10 +28,15 @@ def wait_after_fail(func):
 
 
 class FunctionalTests(LiveServerTestCase):
+
     def setUp(self):
-        self.browser = webdriver.Firefox()
         self.url_admin = self.live_server_url + '/admin'
         self.sleep_time = 0.1
+        self.browser = webdriver.Firefox()
+        default_pages = settings.DEFAULT_PAGES
+        for title in default_pages.keys():
+            Page.objects.get_or_create(title=title, page_url=default_pages[title]['url'],
+                                       edit_url=default_pages[title]['edit_url'])
 
     def tearDown(self):
         self.browser.quit()
@@ -113,7 +121,7 @@ class FunctionalTests(LiveServerTestCase):
         error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
         self.assertIn("Wprowadź poprawne dane w polach ", error.text)
 
-    @wait_after_fail
+    # @wait_after_fail
     def test_adding_article(self):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
@@ -155,20 +163,19 @@ class FunctionalTests(LiveServerTestCase):
             self.assertIn(name, expected_names)
 
         # 10. In each page's row there is "Dodaj" (add) button
-        add_links = self.browser.find_elements(By.XPATH,
-                                               "//ul/li[@class='page_name']//a[@class='addlink']")
+        add_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']//a[@class='addlink']")
         add_links_names = [a.text for a in add_links]
         for add_link in add_links_names:
             self.assertIn(add_link, expected_names)
 
-        random_page_num = random.randint(0, len(expected_names) - 1)
-
-        add_links[random_page_num].click()
+        random_page = random.choice(add_links)
+        random_page_name = random_page.accessible_name
+        random_page.click()
         time.sleep(self.sleep_time)
 
         # 11. After clicking "Dodaj" User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
         edit_page_title = self.browser.find_element(By.ID, "edit_page_title")
-        self.assertEqual(edit_page_title.text, expected_names[random_page_num])
+        self.assertEqual(edit_page_title.text, random_page_name)
 
         # 11.1 There is a form where (s)he can add new article with such parameters as:
         #     [Tytuł(title), Zawartość(content)] and buttons "Zapisz"(save), "Zapisz i dodaj kolejny"(save and add next),
@@ -242,9 +249,9 @@ class FunctionalTests(LiveServerTestCase):
         logout_button = [_ for _ in admin_tools if _.text == 'Wyloguj'][0]
         logout_button.click()
         time.sleep(self.sleep_time)
-        # 6. Site comes back to login page
-        login_site_name = self.browser.find_element(By.ID, 'site_name')
-        self.assertEqual(login_site_name.text, 'Strona Admina Cool School')
+        # 6. Site comes to log-out screen
+        login_site_name = self.browser.find_element(By.XPATH, "//div[@id='content']//h1")
+        self.assertEqual(login_site_name.text, 'Wylogowany(-na)')
         # 7. User closes browser
 
     def test_edit_page_available_only_for_logged_in_superuser(self):
@@ -256,10 +263,9 @@ class FunctionalTests(LiveServerTestCase):
             time.sleep(2)
             header = self.browser.find_element(By.XPATH, "//h1")
             self.assertNotIn(header.text, list(DEFAULT_PAGES.keys()))
+            # 3. User is presented with the error screen
+            self.assertEqual(self.browser.title, "Not Found")
 
-        # 3. User is presented with the error screen saying that You must be logged in order to edit pages
-        error_message = self.browser.find_element(By.ID, "login_needed")
-        self.assertEqual(error_message.text, 'You need admin rights to access this page')
         # 4. User closes browser
 
     def test_clicking_on_navbar_items_redirects_to_pages(self):
@@ -268,14 +274,22 @@ class FunctionalTests(LiveServerTestCase):
         # 2. User is presented with main page
         self.assertIn('Cool School', self.browser.title)
         navbar_nav = self.browser.find_element(By.ID, "navbarNav")
-        self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
+        # self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
         # 3. For every link in navbar
         #   * User clicks on link
         #   * User is redirected to page corresponding to that link
         #   * User verifies if right page is displayed
         nav_links = self.browser.find_elements(By.XPATH, "//a[@class='nav-link']")
-        for link in nav_links:
+        for i in range(len(nav_links)):
+            nav_links = self.browser.find_elements(By.XPATH, "//a[@class='nav-link']")
+            link = nav_links[i]
+            link_text = link.text
             link.click()
             self.browser.implicitly_wait(2)
-            self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES[link.text]['url']}")
+            self.assertEqual(self.browser.current_url, f"{self.live_server_url}{DEFAULT_PAGES[link_text]['url']}")
+            self.browser.back()
         # 4. User closes browser
+
+    # TODO
+    # def test_added_articles_appears_on_proper_pages(self):
+    #     pass

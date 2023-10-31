@@ -39,7 +39,8 @@
                         <a class="nav-link admin_welcome" href="change_pass">Zmień hasło</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link admin_welcome" href="Logout">Wyloguj</a>
+
+                        <a class="nav-link admin_welcome" href="{% url 'logout' %}">Wyloguj</a>
                     </li>
                 {% endif %}
             </ul>

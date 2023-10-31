@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from lxml import html
 from random import randint
 from CoolSchool import settings
+from django.contrib import auth
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -86,9 +87,28 @@ class ArticlesAppTests(LiveServerTestCase):
         else:
             raise AssertionError(f'Cannot get admin page after modification. Status code {response.status_code}')
 
-    # TODO
     def test_admin_logout(self):
         logged_in = self.client.login(username='admin', password='password')
         self.assertTrue(logged_in, "User not logged in correctly")
+        self.assertTrue(auth.get_user(self.client).is_authenticated)
+        admin_page_response = self.client.get(self.admin_url)
+        admin_site_tree = html.fromstring(admin_page_response.content)
+        self.assertEqual(admin_site_tree.get_element_by_id("admin_title").text, 'Strona Admina Cool School')
+        self.client.get('/logout/')
+        self.assertFalse(auth.get_user(self.client).is_authenticated)
 
-        response = self.client.get('/admin/')
+    def test_default_pages_urls(self):
+        default_urls = [page['url'] for _, page in settings.DEFAULT_PAGES.items()]
+        for url in default_urls:
+            url = url.split('/')[0]
+            if not url:
+                url = 'index'
+            response = self.client.get(f'/{url}/')
+            status_code = response.status_code
+            print(status_code)
+            self.assertTrue(status_code != 404, f'Page {url} is returning {status_code}')
+
+    #TODO
+
+    def test_pages_loaded_from_db(self):
+        pass

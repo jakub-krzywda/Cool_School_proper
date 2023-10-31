@@ -8,7 +8,8 @@ def forward_func(apps, schema_editor):
     Page = apps.get_model('articles_app', 'Page')
     default_pages = settings.DEFAULT_PAGES
     for title in default_pages.keys():
-        Page.objects.get_or_create(title=title, page_url=default_pages[title]['url'], edit_url=default_pages[title]['edit_url'])
+        Page.objects.get_or_create(title=title, page_url=default_pages[title]['url'],
+                                   edit_url=default_pages[title]['edit_url'])
 
 
 def reverse_func(apps, schema_editor):

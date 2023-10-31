@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
 """
 URL configuration for articles app.
@@ -29,5 +30,5 @@ urlpatterns = [
     path('courses/', views.courses, name="courses"),
     path('regulamin/', views.regulamin, name="regulamin"),
     path('privacy_policy/', views.privacy_policy, name="privacy_policy"),
-
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
