@@ -18,8 +18,7 @@ def index(request):
         if page.title != 'Główna':
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
         else:
-            default_pages_dict.update({page.title: 'index'})
-    print()
+            pass
     return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
 
 

@@ -7,6 +7,7 @@ from lxml import html
 from random import randint
 from CoolSchool import settings
 from django.contrib import auth
+from datetime import datetime
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -18,6 +19,10 @@ class ArticlesAppTests(LiveServerTestCase):
         )
         self.client = Client()
         self.admin_url = self.live_server_url + '/admin/'
+        self.default_pages = settings.DEFAULT_PAGES
+        for title in self.default_pages.keys():
+            Page.objects.get_or_create(title=title, page_url=self.default_pages[title]['url'],
+                                       edit_url=self.default_pages[title]['edit_url'])
 
     def tearDown(self) -> None:
         pass
@@ -101,14 +106,16 @@ class ArticlesAppTests(LiveServerTestCase):
         default_urls = [page['url'] for _, page in settings.DEFAULT_PAGES.items()]
         for url in default_urls:
             url = url.split('/')[0]
-            if not url:
-                url = 'index'
             response = self.client.get(f'/{url}/')
             status_code = response.status_code
-            print(status_code)
             self.assertTrue(status_code != 404, f'Page {url} is returning {status_code}')
 
-    #TODO
-
     def test_pages_loaded_from_db(self):
-        pass
+        for page_title, urls in self.default_pages.items():
+            page = Page.objects.get_or_create(title=page_title)[0]
+            Article.objects.get_or_create(title='Test Title', content='Test Content', pub_date=datetime.now(),
+                                          page=page)
+            response = self.client.get(urls['url'])
+            self.assertContains(response, 'Test Title')
+            self.assertContains(response, 'Test Content')
+
