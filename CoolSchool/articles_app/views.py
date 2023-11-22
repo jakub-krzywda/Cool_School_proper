@@ -10,18 +10,6 @@ def is_superuser(user):
     return user.is_authenticated and user.is_superuser
 
 
-# Create your views here.
-def index(request):
-    pages = Page.objects.all()
-    default_pages_dict = {}
-    for page in pages:
-        if page.title != 'Główna':
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        else:
-            pass
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
-
-
 @login_required
 @user_passes_test(is_superuser)
 def add_main(request):
@@ -61,13 +49,24 @@ def add_privacy_policy(request):
     return render(request, 'edit_page.html', context={'page_name': 'Polityka Prywatności'})
 
 
+def index(request):
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title != 'Główna':
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        else:
+            pass
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Główna'})
+
+
 def news(request):
     pages = Page.objects.all()
     default_pages_dict = {}
     for page in pages:
         if page.title not in ('Główna', 'Aktualności'):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Aktualności'})
 
 
 def courses(request):
@@ -76,9 +75,7 @@ def courses(request):
     for page in pages:
         if page.title not in ('Główna', 'Kursy'):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        # else:
-        #     default_pages_dict.update({page.title: 'index'})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kursy'})
 
 
 def regulamin(request):
@@ -87,9 +84,7 @@ def regulamin(request):
     for page in pages:
         if page.title not in ('Główna', 'Regulamin'):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        # else:
-        #     default_pages_dict.update({page.title: 'index'})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Regulamin'})
 
 
 def privacy_policy(request):
@@ -100,4 +95,4 @@ def privacy_policy(request):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
         # else:
         #     default_pages_dict.update({page.title: 'index'})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Polityka Prywatności'})

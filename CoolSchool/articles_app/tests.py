@@ -118,4 +118,3 @@ class ArticlesAppTests(LiveServerTestCase):
             response = self.client.get(urls['url'])
             self.assertContains(response, 'Test Title')
             self.assertContains(response, 'Test Content')
-

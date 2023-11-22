@@ -27,9 +27,11 @@
         </button>
         <div class="collapse navbar-collapse mx-5" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">{{ current_page_name }}</a>
-                </li>
+                {% if current_page_name != "Główna" %}
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page">{{ current_page_name }}</a>
+                    </li>
+                {% endif %}
                 {% for page_name, page_url in default_pages_dict.items %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url page_url %}">{{ page_name }}</a>
