@@ -50,13 +50,13 @@ def add_privacy_policy(request):
 
 def index(request):
     pages = Page.objects.all()
+    articles = Article.objects.filter(page__title='Główna')
     default_pages_dict = {}
     for page in pages:
         if page.title != 'Główna':
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        else:
-            pass
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Główna'})
+    # TODO Implement displaying articles in template.
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Główna', 'articles': articles})
 
 
 def news(request):
