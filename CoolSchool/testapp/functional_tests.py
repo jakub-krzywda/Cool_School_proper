@@ -294,6 +294,23 @@ class FunctionalTests(LiveServerTestCase):
             self.browser.back()
         # 4. User closes browser
 
-    # TODO
-    # def test_added_articles_appears_on_proper_pages(self):
-    #     pass
+    def test_added_new_articles_appears_on_proper_pages(self):
+        # 1. User comes to <live_server_url>/admin
+        # 2. Login panel is present
+        # 3. User enters right login and password
+        # 4. For every link redirecting to edit pages:
+        #   * Click on the link
+        #   * Page with Title, existing articles with edit and delete buttons, Add new article button and Title is presented
+        #   * User clicks on "Add new article" button
+        #   * Form with Title, content and save button is presented
+        #   * Content can be edited as in text editor
+        #   * User clicks on Save button
+        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
+        #   * User clicks on "yes"
+        #   * User goes back to previous page were he can choose which site to edit
+        # 5. User clicks on "Show page" button on top of the edit page
+        # 6. For every link in navigation menu:
+        #   * Click on navigation menu link
+        #   * User is presented with corresponding page
+        #   * User checks if previously added article is presented on the page in proper place
+        pass
