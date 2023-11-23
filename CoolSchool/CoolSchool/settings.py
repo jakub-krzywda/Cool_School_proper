@@ -127,5 +127,6 @@ DEFAULT_PAGES = {
     'Aktualności': {'url': 'news/', 'edit_url': '/add_article/add_news/'},
     'Kursy': {'url': 'courses/', 'edit_url': '/add_article/add_courses/'},
     'Regulamin': {'url': 'regulamin/', 'edit_url': '/add_article/add_regulamin/'},
-    'Polityka Prywatności': {'url': 'privacy_policy/', 'edit_url': '/add_article/add_privacy_policy/'}
+    'Polityka Prywatności': {'url': 'privacy_policy/', 'edit_url': '/add_article/add_privacy_policy/'},
+    'Kontakt': {'url': 'contact/', 'edit_url': '/add_article/contact/'}
 }

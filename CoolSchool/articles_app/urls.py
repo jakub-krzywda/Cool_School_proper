@@ -31,4 +31,5 @@ urlpatterns = [
     path('regulamin/', views.regulamin, name="regulamin"),
     path('privacy_policy/', views.privacy_policy, name="privacy_policy"),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('contact/', views.contact, name='contact'),
 ]

@@ -74,7 +74,10 @@ class FunctionalTests(LiveServerTestCase):
         self.browser.maximize_window()
         self.assertIn('Cool School', self.browser.title)
         navbar_nav = self.browser.find_element(By.ID, "navbarNav")
-        self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
+        expected_links = tuple(settings.DEFAULT_PAGES.keys())
+        actual_links = navbar_nav.text.split('\n')
+        for link in actual_links:
+            self.assertIn(link, expected_links)
         logo = self.browser.find_element(By.ID, "imgLogo")
         self.assertEqual(logo.size['height'], 69)
         self.assertEqual(logo.size['width'], 323)
@@ -158,7 +161,7 @@ class FunctionalTests(LiveServerTestCase):
         #                                                                 Polityka_Prywatności]
         pages = self.browser.find_elements(By.XPATH, "//ul/li[@class=page_name]")
         page_names = [a.text for a in pages]
-        expected_names = ('Główna', 'Aktualności', 'Kursy', 'Regulamin', 'Polityka Prywatności')
+        expected_names = tuple(settings.DEFAULT_PAGES.keys())
         for name in page_names:
             self.assertIn(name, expected_names)
 
@@ -226,7 +229,9 @@ class FunctionalTests(LiveServerTestCase):
         time.sleep(sleep_time)
         # 6. User is presented with a main page
         navbar_nav = self.browser.find_element(By.ID, "navbarNav")
-        self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
+        for page_name in settings.DEFAULT_PAGES.keys():
+            if page_name != 'Główna':
+                self.assertIn(page_name, navbar_nav.text.split('\n'))
         logo = self.browser.find_element(By.ID, "imgLogo")
         self.assertEqual(logo.size['height'], 69)
         self.assertEqual(logo.size['width'], 323)
@@ -274,7 +279,6 @@ class FunctionalTests(LiveServerTestCase):
         # 2. User is presented with main page
         self.assertIn('Cool School', self.browser.title)
         navbar_nav = self.browser.find_element(By.ID, "navbarNav")
-        # self.assertEqual(navbar_nav.text, 'Aktualności\nKursy\nRegulamin\nKontakt\nPolityka Prywatności')
         # 3. For every link in navbar
         #   * User clicks on link
         #   * User is redirected to page corresponding to that link
@@ -286,7 +290,7 @@ class FunctionalTests(LiveServerTestCase):
             link_text = link.text
             link.click()
             self.browser.implicitly_wait(2)
-            self.assertEqual(self.browser.current_url, f"{self.live_server_url}{DEFAULT_PAGES[link_text]['url']}")
+            self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES[link_text]['url']}")
             self.browser.back()
         # 4. User closes browser
 

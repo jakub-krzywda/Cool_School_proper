@@ -3,7 +3,6 @@ from .forms import ArticleForm
 from datetime import datetime
 from .models import Article, Page
 from django.contrib.auth.decorators import login_required, user_passes_test
-from CoolSchool import settings
 
 
 def is_superuser(user):
@@ -96,3 +95,14 @@ def privacy_policy(request):
         # else:
         #     default_pages_dict.update({page.title: 'index'})
     return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Polityka Prywatności'})
+
+
+def contact(request):
+    pages = Page.objects.all()
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', 'Kontakt'):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+        # else:
+        #     default_pages_dict.update({page.title: 'index'})
+    return render(request, 'contact.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kontakt'})
