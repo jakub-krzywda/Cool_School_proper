@@ -23,5 +23,6 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin_site.urls),
     path("", include("articles_app.urls")),
+    path("ckeditor/", include("ckeditor_uploader.urls")),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
