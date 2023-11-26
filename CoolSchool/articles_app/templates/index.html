@@ -46,8 +46,12 @@
         <div class="col-2">
         </div>
         <div class="col-8">
-
-
+            {% for article in articles %}
+                <article>
+                    <h1>{{ article.title }}</h1>
+                    <div class="main"> {{ article.content }}</div>
+                </article>
+            {% endfor %}
         </div>
         <div class="col-2">
         </div>

@@ -1,13 +1,15 @@
-from django.test import LiveServerTestCase, Client
-from articles_app.admin import admin_site
-from django.contrib.staticfiles import finders
-from .models import Page, Article
-from django.contrib.auth.models import User
-from lxml import html
 from random import randint
-from CoolSchool import settings
+
 from django.contrib import auth
-from datetime import datetime
+from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders
+from django.test import LiveServerTestCase, Client
+from django.utils import timezone
+from lxml import html
+
+from CoolSchool import settings
+from articles_app.admin import admin_site
+from .models import Page, Article
 
 
 class ArticlesAppTests(LiveServerTestCase):
@@ -110,12 +112,12 @@ class ArticlesAppTests(LiveServerTestCase):
             status_code = response.status_code
             self.assertTrue(status_code != 404, f'Page {url} is returning {status_code}')
 
-    def test_pages_loaded_from_db(self):
+    def test_articles_loaded_from_db(self):
         for page_title, urls in self.default_pages.items():
             page = Page.objects.get_or_create(title=page_title)[0]
-            Article.objects.get_or_create(title='Test Title', content='Test Content', pub_date=datetime.now(),
+            Article.objects.get_or_create(title='Test Title', content='Test Content', pub_date=timezone.now(),
                                           page=page)
-            response = self.client.get(urls['url'])
-            self.assertContains(response, 'Test Title')
-            self.assertContains(response, 'Test Content')
-
+            response = self.client.get(f"/{urls['url']}")
+            site_tree = html.fromstring(response.content)
+            article_title = site_tree.xpath("//article/h1")[0].text
+            self.assertEqual(article_title, 'Test Title')

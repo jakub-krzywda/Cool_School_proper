@@ -48,61 +48,42 @@ def add_privacy_policy(request):
     return render(request, 'edit_page.html', context={'page_name': 'Polityka Prywatności'})
 
 
-def index(request):
+def render_page_based_on_index_template(request, page_name):
     pages = Page.objects.all()
-    articles = Article.objects.filter(page__title='Główna')
+    articles = Article.objects.filter(page__title=page_name)
     default_pages_dict = {}
     for page in pages:
-        if page.title != 'Główna':
+        if page.title not in ('Główna', page_name):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    # TODO Implement displaying articles in template.
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Główna', 'articles': articles})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': page_name, 'articles': articles})
+
+
+def index(request):
+    return render_page_based_on_index_template(request, "Główna")
 
 
 def news(request):
-    pages = Page.objects.all()
-    default_pages_dict = {}
-    for page in pages:
-        if page.title not in ('Główna', 'Aktualności'):
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Aktualności'})
+    return render_page_based_on_index_template(request, "Aktualności")
 
 
 def courses(request):
-    pages = Page.objects.all()
-    default_pages_dict = {}
-    for page in pages:
-        if page.title not in ('Główna', 'Kursy'):
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kursy'})
+    return render_page_based_on_index_template(request, "Kursy")
 
 
 def regulamin(request):
-    pages = Page.objects.all()
-    default_pages_dict = {}
-    for page in pages:
-        if page.title not in ('Główna', 'Regulamin'):
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Regulamin'})
+    return render_page_based_on_index_template(request, "Regulamin")
 
 
 def privacy_policy(request):
-    pages = Page.objects.all()
-    default_pages_dict = {}
-    for page in pages:
-        if page.title not in ('Główna', 'Polityka Prywatności'):
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        # else:
-        #     default_pages_dict.update({page.title: 'index'})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Polityka Prywatności'})
+    return render_page_based_on_index_template(request, "Polityka Prywatności")
 
 
 def contact(request):
     pages = Page.objects.all()
+    articles = Article.objects.filter(page__title='Kontakt')
     default_pages_dict = {}
     for page in pages:
         if page.title not in ('Główna', 'Kontakt'):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-        # else:
-        #     default_pages_dict.update({page.title: 'index'})
-    return render(request, 'contact.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kontakt'})
+    return render(request, 'contact.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kontakt',
+                                            'articles': articles})
