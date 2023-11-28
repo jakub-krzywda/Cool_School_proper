@@ -294,13 +294,14 @@ class FunctionalTests(LiveServerTestCase):
             self.browser.back()
         # 4. User closes browser
 
+    # TODO
     def test_added_new_articles_appears_on_proper_pages(self):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
         # 3. User enters right login and password
         # 4. For every link redirecting to edit pages:
         #   * Click on the link
-        #   * Page with Title, existing articles with edit and delete buttons, Add new article button and Title is presented
+        #   * Page with Add new article button and Title is presented
         #   * User clicks on "Add new article" button
         #   * Form with Title, content and save button is presented
         #   * Content can be edited as in text editor
@@ -313,4 +314,165 @@ class FunctionalTests(LiveServerTestCase):
         #   * Click on navigation menu link
         #   * User is presented with corresponding page
         #   * User checks if previously added article is presented on the page in proper place
+        #   * User checks if articles title and content is presented
+        pass
+
+    # TODO
+    def test_previously_added_articles_appears_on_edit_page(self):
+        #   Fixture:
+        #   1. User comes to <live_server_url>/admin
+        #   2. Login panel is present
+        #   3. User enters right login and password
+        #   4. User adds an article on every available page
+        #   Actual test:
+        #   1. User goes back to admin page
+        #   2. For every link redirecting to edit pages:
+        #       * Click on the link
+        #       * User is presented with an edit page
+        #       * User checks if previously added articles are shown on the page correctly
+        pass
+
+    def test_contact_page_editing(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # Actual test:
+        # 1. User goes to the admin panel
+        # 2. User clicks on link to contact edit page
+        # 3. User is presented with the contact site's edit page with "Find us on the map" section on the bottom
+        # 4. User clicks on "Add new article" button
+        # 5. User is presented with the adding article form
+        # 6. User enters title and content
+        # 7. User clicks on the save button
+        # 8. "Do you want to save this article" prompt is presented
+        # 9. User clicks on "yes"
+        # 10. User is redirected to Contact page with added article and "Find us on the map" section on the bottom
+        pass
+
+    # TODO
+    def test_formatting_in_ckeditor(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # Actual test:
+        # 1. User clicks on random page edit link
+        # 2. User clicks on "Add new article" button
+        # 3. User is presented with add article interface (ckeditor)
+        # 4. User enters title
+        # 5. User clicks on bold button
+        # 6. User types in word "Bold"
+        # 7. User clicks on table addition button
+        # 8. User enters table parameters (number of rows and columns)
+        # 9. User enters some content in table
+        # 10. User saves an article
+        # 11. User is redirected to proper page and added article with proper formatting is shown
+        # 12. User quits the browser
+        pass
+
+    # TODO
+    def test_photo_addition_in_ckeditor(self):
+        # Fixture:
+        # 1. User logs into admin panel,
+        # 2. clicks on random page edit link,
+        # 3. clicks on "Add new article" button
+        # Actual test:
+        # 1. User clicks on ckeditor's add image button
+        # 2. User selects an image from local disc
+        # 3. User clicks on "Save" button
+        # 4. User is redirected with corresponding page
+        # 5. Previously added image is presented on the page
+        pass
+
+    # TODO
+    def test_edit_page_for_all_pages_are_present(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # Actual test:
+        # 1. For every edit page link:
+        #   * Click on the link
+        #   * Check if edit page is presented
+        #   * Go back
+        #   * Select next link
+        # 2. Quit browser
+        pass
+
+    # TODO
+    def test_page_selection_for_articles(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User clicks on main site's edit page link
+        # 3. User clicks on "Add new article" button
+        # Actual test:
+        # 1. There is no option to select other pages for article to appear
+        # 2. User adds some mock article
+        # 3. User clicks on "Save" button
+        # 4. User is redirected to main page where the added article is present
+        pass
+
+    # TODO
+    def test_edit_option_present(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User adds an article and saves it
+        # 3. Goes back to main admin site
+        # 4. User clicks on main site's edit page link
+        # Actual test:
+        # 1. Previously added article is displayed correctly
+        # 2. Edit button is present next to the article
+        # 3. User goes back to the main admin page
+        pass
+
+    # TODO
+    def test_edit_option_changes_content_of_articles_on_actual_page(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User adds an article and saves it
+        # 3. Goes back to main admin site
+        # 4. User clicks on main site's edit page link
+        # Actual test:
+        # 1. Previously added article is displayed correctly
+        # 2. Edit button is present next to the article
+        # 3. User clicks on edit button
+        # 4. Edit mode (ckeditor) is presented with content of previously added article
+        # 5. User changes the content
+        # 6. User clicks on the "Save" button
+        # 7, User is redirected to main site's edit page where article with changed content is presented
+        # 8. User goes to main site where article with changed content is present
+        pass
+
+    # TODO
+    def test_show_on_whiteboard_option_on_edit_pages(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User goes to the news site's edit page
+        # 3. User clicks on "Add new article" button
+        # Actual test
+        # 1. "Show on main page's whiteboard" checkbox is present.
+        pass
+
+    # TODO
+    def test_whiteboard_present_on_index_page(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User goes to the news site's edit page
+        # 3. User adds new article for news page and checks the checkbox for it to be presented on whiteboard
+        # Actual test:
+        # 1. User goes to main page
+        # 2. Green whiteboard is presented on the page with links to previously added article on news page
+        # 3. User clicks on the link on the whiteboard
+        # 4. Link redirects user to the news page and anchor for previously added article
+        pass
+
+    # TODO
+    def test_deleting_articles(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        # 2. User goes to the news site's edit page
+        # 3. User adds new article on news site
+        # Actual test:
+        # 1. User goes back to main admin panel's site
+        # 2. User clicks on link that leads to news page's edit site
+        # 3. "Delete" button is present next to previously added article
+        # 4. User clicks on "Delete"
+        # 5. Article is deleted and is no longer presented on the edit page
+        # 6. User clicks on "show page" button in the navigation bar and is redirected to News site
+        # 7. Deleted article is not presented on the page
         pass

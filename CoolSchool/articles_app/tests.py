@@ -121,3 +121,31 @@ class ArticlesAppTests(LiveServerTestCase):
             site_tree = html.fromstring(response.content)
             article_title = site_tree.xpath("//article/h1")[0].text
             self.assertEqual(article_title, 'Test Title')
+
+    # TODO
+    def test_edit_pages_urls(self):
+        pass
+
+    # TODO CI/CD on github research
+    # TODO CSS for admin page
+    # TODO CSS for articles
+    # TODO Docker research
+
+    # TODO
+    def test_all_links_returns_200(self):
+        pass
+
+    # TODO
+    def test_edit_forms(self):
+        pass
+
+    def test_edition_of_articles(self):
+        pass
+
+    def test_previously_added_articles_shown_on_edit_pages(self):
+        pass
+
+
+
+
+
