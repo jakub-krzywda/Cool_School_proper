@@ -1,13 +1,15 @@
 import random
 
-from django.test import LiveServerTestCase
 from django.contrib.auth.models import User
+from django.test import LiveServerTestCase
 from selenium import webdriver
-from CoolSchool.settings import DEFAULT_PAGES
-import time
 from selenium.webdriver.common.by import By
-from articles_app.models import Page
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from CoolSchool import settings
+from CoolSchool.settings import DEFAULT_PAGES
+from articles_app.models import Page
 
 
 def wait_after_fail(func):
@@ -31,8 +33,12 @@ class FunctionalTests(LiveServerTestCase):
 
     def setUp(self):
         self.url_admin = self.live_server_url + '/admin'
-        self.sleep_time = 0.1
+        self.sleep_time = 10
         self.browser = webdriver.Firefox()
+        self.wait = WebDriverWait(self.browser, self.sleep_time)
+        self.login = "testUser"
+        self.password = "testPassword"
+        User.objects.create_superuser(self.login, 'myemail@test.com', self.password)
         default_pages = settings.DEFAULT_PAGES
         for title in default_pages.keys():
             Page.objects.get_or_create(title=title, page_url=default_pages[title]['url'],
@@ -41,25 +47,19 @@ class FunctionalTests(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def login_admin(self, login, password):
+    def login_admin(self, login='testUser', password='testPassword'):
         self.browser.get(self.url_admin)
-        username_input = self.browser.find_element(By.ID, 'id_username')
-        password_input = self.browser.find_element(By.ID, 'id_password')
-        login_button = self.browser.find_element(By.XPATH, "//input[@type='submit']")
+        username_input = self.wait.until(EC.presence_of_element_located((By.ID, "id_username")))
+        password_input = self.wait.until(EC.presence_of_element_located((By.ID, 'id_password')))
+        login_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='submit']")))
         username_input.click()
-        time.sleep(1)
         username_input.send_keys(login)
-        time.sleep(1)
         password_input.click()
-        time.sleep(1)
         password_input.send_keys(password)
-        time.sleep(1)
         login_button.click()
-        time.sleep(1)
 
     def test_selenium_starts(self):
         self.browser.get(self.live_server_url)
-        time.sleep(5)
 
     def test_user_comes_to_site_and_checks_navigation_bar_and_title(self):
         """
@@ -102,10 +102,7 @@ class FunctionalTests(LiveServerTestCase):
         5. User leaves the page
         """
         # store the password to login later
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, password)
+        self.login_admin()
         header = self.browser.find_element(By.ID, 'admin_title')
         self.assertEqual(header.text, "Strona Admina Cool School")
 
@@ -117,10 +114,7 @@ class FunctionalTests(LiveServerTestCase):
         4. User sees error message
         5. User leaves the page
         """
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, 'wrong_pass')
+        self.login_admin(self.login, 'wrong_pass')
         error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
         self.assertIn("Wprowadź poprawne dane w polach ", error.text)
 
@@ -129,10 +123,7 @@ class FunctionalTests(LiveServerTestCase):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
         # 3. User enters right login and password
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, password)
+        self.login_admin()
 
         # 4. User sees admin page
         # 5. Main header says "Strona Admina Cool School"
@@ -142,16 +133,16 @@ class FunctionalTests(LiveServerTestCase):
         # 6. Under main header there is a menu that says "Witaj <name of the user>." And has options such as:
         # [Zobacz stronę, Zmień hasło, Wyloguj]
         user_tools = self.browser.find_element(By.CSS_SELECTOR, 'p.admin_welcome')
-        self.assertIn(f'Witaj, {login}', user_tools.text)
+        self.assertIn(f'Witaj, {self.login}', user_tools.text)
         user_tools_links = self.browser.find_elements(By.CSS_SELECTOR, "a.nav-link.admin_welcome")
         expected_tools_a = ('Zobacz stronę', 'Zmień hasło', 'Wyloguj')
         found_links = [item.accessible_name for item in user_tools_links]
         for a in expected_tools_a:
             self.assertIn(a, found_links)
 
-        # 7. Subheader says "Poniżej wybierz stronę na którą chcesz dodać artykuł i kliknij dodaj"
+        # 7. Subheader says "Poniżej wybierz stronę, którą chcesz edytować"
         subheader = self.browser.find_element(By.XPATH, "//div[@id='content']//h2")
-        self.assertEqual("Poniżej wybierz stronę na którą chcesz dodać artykuł", subheader.text)
+        self.assertEqual("Poniżej wybierz stronę, którą chcesz edytować", subheader.text)
 
         # 8. Caption says "Strony"
         caption = self.browser.find_element(By.ID, 'pages_caption')
@@ -174,10 +165,9 @@ class FunctionalTests(LiveServerTestCase):
         random_page = random.choice(add_links)
         random_page_name = random_page.accessible_name
         random_page.click()
-        time.sleep(self.sleep_time)
 
         # 11. After clicking "Dodaj" User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
-        edit_page_title = self.browser.find_element(By.ID, "edit_page_title")
+        edit_page_title = self.wait.until(EC.presence_of_element_located((By.ID, "edit_page_title")))
         self.assertEqual(edit_page_title.text, random_page_name)
 
         # 11.1 There is a form where (s)he can add new article with such parameters as:
@@ -189,17 +179,13 @@ class FunctionalTests(LiveServerTestCase):
         self.assertEqual('Zawartość', content_label)
 
         # 12. User enters title and content and clicks save
-        title_form = self.browser.find_element(By.ID, 'id_title')
-        content_form = self.browser.find_element(By.ID, 'id_content')
+        title_form = self.wait.until(EC.presence_of_element_located((By.ID, 'id_title')))
+        content_form = self.wait.until(EC.presence_of_element_located((By.ID, 'id_content')))
         title_form.click()
-        time.sleep(self.sleep_time)
         title_form.send_keys('Title')
-        time.sleep(self.sleep_time)
         content_form.click()
-        time.sleep(self.sleep_time)
         content_form.send_keys('Content')
-        time.sleep(self.sleep_time)
-        save_buttons = self.browser.find_elements(By.XPATH, "//button[@type='submit']")
+        save_buttons = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
         save_buttons_values = [button.accessible_name for button in save_buttons]
         expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
                                  "Zapisz i kontynuuj edycje")
@@ -207,17 +193,12 @@ class FunctionalTests(LiveServerTestCase):
                         'Wrong button names')
         save_buttons[0].click()
 
-        time.sleep(self.sleep_time)
-
     def test_logged_user_clicks_on_show_page(self):
         # 1. User comes to admin page using admin url
         # 2. User is presented with a login page
         # 3. User enters login and password and clicks enter
         sleep_time = 0.1
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, password)
+        self.login_admin()
         # 4. User is presented with admin page
         header = self.browser.find_element(By.ID, "admin_title")
         self.assertEqual("Strona Admina Cool School", header.text)
@@ -226,9 +207,8 @@ class FunctionalTests(LiveServerTestCase):
         # 5. User clicks on "View site" button
         view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
         view_link.click()
-        time.sleep(sleep_time)
         # 6. User is presented with a main page
-        navbar_nav = self.browser.find_element(By.ID, "navbarNav")
+        navbar_nav = self.wait.until(EC.presence_of_element_located((By.ID, "navbarNav")))
         for page_name in settings.DEFAULT_PAGES.keys():
             if page_name != 'Główna':
                 self.assertIn(page_name, navbar_nav.text.split('\n'))
@@ -236,16 +216,12 @@ class FunctionalTests(LiveServerTestCase):
         self.assertEqual(logo.size['height'], 69)
         self.assertEqual(logo.size['width'], 323)
         # 7. User closes browser
-        time.sleep(2)
 
     def test_admin_logout(self):
         # 1. User comes to admin page using admin url
         # 2. User is presented with a login page
         # 3. User enters login and password
-        login = "testUser"
-        password = "testPassword"
-        User.objects.create_superuser(login, 'myemail@test.com', password)
-        self.login_admin(login, password)
+        self.login_admin()
         # 4. User is presented with admin page
         header = self.browser.find_element(By.ID, "admin_title")
         self.assertEqual("Strona Admina Cool School", header.text)
@@ -253,9 +229,8 @@ class FunctionalTests(LiveServerTestCase):
         # 5. User clicks logout button in navbar
         logout_button = [_ for _ in admin_tools if _.text == 'Wyloguj'][0]
         logout_button.click()
-        time.sleep(self.sleep_time)
         # 6. Site comes to log-out screen
-        login_site_name = self.browser.find_element(By.XPATH, "//div[@id='content']//h1")
+        login_site_name = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='content']//h1")))
         self.assertEqual(login_site_name.text, 'Wylogowany(-na)')
         # 7. User closes browser
 
@@ -265,12 +240,10 @@ class FunctionalTests(LiveServerTestCase):
         edit_urls = [v['edit_url'] for k, v in DEFAULT_PAGES.items()]
         for url in edit_urls:
             self.browser.get(self.live_server_url + url)
-            time.sleep(2)
-            header = self.browser.find_element(By.XPATH, "//h1")
+            header = self.wait.until(EC.presence_of_element_located((By.XPATH, "//h1")))
             self.assertNotIn(header.text, list(DEFAULT_PAGES.keys()))
             # 3. User is presented with the error screen
             self.assertEqual(self.browser.title, "Not Found")
-
         # 4. User closes browser
 
     def test_clicking_on_navbar_items_redirects_to_pages(self):
@@ -299,54 +272,96 @@ class FunctionalTests(LiveServerTestCase):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
         # 3. User enters right login and password
+        self.login_admin()
         # 4. For every link redirecting to edit pages:
-        #   * Click on the link
-        #   * Page with Add new article button and Title is presented
-        #   * User clicks on "Add new article" button
-        #   * Form with Title, content and save button is presented
-        #   * Content can be edited as in text editor
-        #   * User clicks on Save button
-        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
-        #   * User clicks on "yes"
-        #   * User goes back to previous page were he can choose which site to edit
-        # 5. User clicks on "Show page" button on top of the edit page
-        # 6. For every link in navigation menu:
-        #   * Click on navigation menu link
-        #   * User is presented with corresponding page
-        #   * User checks if previously added article is presented on the page in proper place
-        #   * User checks if articles title and content is presented
-        pass
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        for link in edit_links:
+            #   * Click on the link
+            link.click()
+            buttons = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button")))
+            buttons_texts = [button.text for button in buttons]
+            #   * Page with Add new article button and Title is presented
+            self.assertTrue('Dodaj nowy artykuł' in buttons_texts, 'There is no "Add new article" button')
+            add_new_article_button = self.wait.until(EC.presence_of_element_located(self.browser.find_element(By.ID, 'add_new')))
+            #   * User clicks on "Add new article" button
+            add_new_article_button.click()
+            #   * Form with Title, content and save button is presented
+            title_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='title']")))
+            content_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='content']")))
+            self.assertTrue(title_form, 'There is no title input')
+            self.assertTrue(content_form, 'There is no content input')
+            self.assertTrue('Zapisz' in buttons_texts, 'There is no "Save" button')
+            #   * Content can be edited as in text editor
+            ckeditor_form = self.browser.find_element(By.ID, 'cke_id_content')
+            self.assertTrue(ckeditor_form)
+            title_form.click()
+            title_form.send_keys('Test Title')
+            content_form.click()
+            content_form.send_keys('Test Content')
+            save_button = self.browser.find_element(By.XPATH, "//input[@type='submit']")
+            #   * User clicks on Save button
+            save_button.click()
+
+            # TODO Add testing dialog window
+            #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
+            #   * User clicks on "yes"
+
+            #   * User goes back to previous page were he can choose which site to edit
+            self.browser.back()
+            admin_tools = self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome']")))
+            # 5. User clicks on "Show page" button on top of the edit page
+            view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
+            view_link.click()
+            # 6. For every link in navigation menu:
+            navigation_menu_links = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='navbarNav']/ul/li/a")))
+            for nav_link in navigation_menu_links:
+                #   * Click on navigation menu link
+                nav_link.click()
+                #   * User is presented with corresponding page
+                #   * User checks if previously added article is presented on the page in proper place
+                self.assertTrue('Test Title' in self.browser.page_source)
+                #   * User checks if articles title and content is presented
+                self.assertTrue('Test Content' in self.browser.page_source)
 
     # TODO
-    def test_previously_added_articles_appears_on_edit_page(self):
-        #   Fixture:
-        #   1. User comes to <live_server_url>/admin
-        #   2. Login panel is present
-        #   3. User enters right login and password
-        #   4. User adds an article on every available page
-        #   Actual test:
-        #   1. User goes back to admin page
-        #   2. For every link redirecting to edit pages:
-        #       * Click on the link
-        #       * User is presented with an edit page
-        #       * User checks if previously added articles are shown on the page correctly
-        pass
-
     def test_contact_page_editing(self):
         # Fixture:
         # 1. User logs into admin panel
+        self.login_admin()
         # Actual test:
         # 1. User goes to the admin panel
+        edit_links = self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
         # 2. User clicks on link to contact edit page
+        contact_edit_link = [edit_link for edit_link in edit_links if edit_link.text == 'Kontakt'][0]
+        contact_edit_link.click()
+
         # 3. User is presented with the contact site's edit page with "Find us on the map" section on the bottom
+        header = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='map']/h1")))
+        self.assertEqual('Znajdź nas na mapie', header.text)
         # 4. User clicks on "Add new article" button
+        add_new_article_button = self.wait.until(EC.presence_of_element_located(self.browser.find_element(By.ID, 'add_new')))
+        add_new_article_button.click()
         # 5. User is presented with the adding article form
+        title_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='title']")))
+        content_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='content']")))
         # 6. User enters title and content
+        title_form.click()
+        title_form.send_keys('Test Title')
+        content_form.click()
+        content_form.send_keys('Test Content')
         # 7. User clicks on the save button
+        save_button = self.browser.find_element(By.XPATH, "//input[@type='submit']")
         # 8. "Do you want to save this article" prompt is presented
         # 9. User clicks on "yes"
+        # TODO Add testing dialog window
+        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
+        #   * User clicks on "yes"
         # 10. User is redirected to Contact page with added article and "Find us on the map" section on the bottom
-        pass
+        header = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='map']/h1")))
+        self.assertEqual('Znajdź nas na mapie', header.text)
+        # 11. Previously added article's title and content is presented on the page
+        self.assertTrue('Test Title' in self.browser.page_source)
+        self.assertTrue('Test Content' in self.browser.page_source)
 
     # TODO
     def test_formatting_in_ckeditor(self):
