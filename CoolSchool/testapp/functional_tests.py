@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 from CoolSchool import settings
 from CoolSchool.settings import DEFAULT_PAGES
@@ -35,6 +36,7 @@ class FunctionalTests(LiveServerTestCase):
         self.url_admin = self.live_server_url + '/admin'
         self.sleep_time = 10
         self.browser = webdriver.Firefox()
+        self.actions = ActionChains(self.browser)
         self.wait = WebDriverWait(self.browser, self.sleep_time)
         self.login = "testUser"
         self.password = "testPassword"
@@ -185,7 +187,8 @@ class FunctionalTests(LiveServerTestCase):
         title_form.send_keys('Title')
         content_form.click()
         content_form.send_keys('Content')
-        save_buttons = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        save_buttons = self.browser.find_elements(By.XPATH, "//button[@type='submit']")
         save_buttons_values = [button.accessible_name for button in save_buttons]
         expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
                                  "Zapisz i kontynuuj edycje")
@@ -278,11 +281,12 @@ class FunctionalTests(LiveServerTestCase):
         for link in edit_links:
             #   * Click on the link
             link.click()
-            buttons = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button")))
+            self.wait.until(EC.presence_of_element_located((By.XPATH, "//button")))
+            buttons = self.browser.find_elements(By.XPATH, "//button")
             buttons_texts = [button.text for button in buttons]
             #   * Page with Add new article button and Title is presented
             self.assertTrue('Dodaj nowy artykuł' in buttons_texts, 'There is no "Add new article" button')
-            add_new_article_button = self.wait.until(EC.presence_of_element_located(self.browser.find_element(By.ID, 'add_new')))
+            add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
             #   * User clicks on "Add new article" button
             add_new_article_button.click()
             #   * Form with Title, content and save button is presented
@@ -308,12 +312,14 @@ class FunctionalTests(LiveServerTestCase):
 
             #   * User goes back to previous page were he can choose which site to edit
             self.browser.back()
-            admin_tools = self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome']")))
+            self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome']")))
+            admin_tools = self.browser.find_elements(By.XPATH, "//a[@class='nav-link admin_welcome']")
             # 5. User clicks on "Show page" button on top of the edit page
             view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
             view_link.click()
             # 6. For every link in navigation menu:
-            navigation_menu_links = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='navbarNav']/ul/li/a")))
+            self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='navbarNav']/ul/li/a")))
+            navigation_menu_links = self.browser.find_elements(By.XPATH, "//div[@id='navbarNav']/ul/li/a")
             for nav_link in navigation_menu_links:
                 #   * Click on navigation menu link
                 nav_link.click()
@@ -330,7 +336,8 @@ class FunctionalTests(LiveServerTestCase):
         self.login_admin()
         # Actual test:
         # 1. User goes to the admin panel
-        edit_links = self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
         # 2. User clicks on link to contact edit page
         contact_edit_link = [edit_link for edit_link in edit_links if edit_link.text == 'Kontakt'][0]
         contact_edit_link.click()
@@ -351,11 +358,11 @@ class FunctionalTests(LiveServerTestCase):
         content_form.send_keys('Test Content')
         # 7. User clicks on the save button
         save_button = self.browser.find_element(By.XPATH, "//input[@type='submit']")
+        save_button.click()
+        # TODO Add testing dialog window
         # 8. "Do you want to save this article" prompt is presented
         # 9. User clicks on "yes"
-        # TODO Add testing dialog window
-        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
-        #   * User clicks on "yes"
+
         # 10. User is redirected to Contact page with added article and "Find us on the map" section on the bottom
         header = self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='map']/h1")))
         self.assertEqual('Znajdź nas na mapie', header.text)
@@ -367,20 +374,82 @@ class FunctionalTests(LiveServerTestCase):
     def test_formatting_in_ckeditor(self):
         # Fixture:
         # 1. User logs into admin panel
+        self.login_admin()
         # Actual test:
         # 1. User clicks on random page edit link
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        random_edit_link = random.choice(edit_links)
+        edit_link_url = random_edit_link.get_attribute("href")
+        random_edit_link.click()
         # 2. User clicks on "Add new article" button
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
         # 3. User is presented with add article interface (ckeditor)
+        self.wait.until(EC.presence_of_element_located((By.ID, 'cke_id_content')))
+        ckeditor = self.browser.find_element(By.ID, 'cke_id_content')
+        self.assertTrue(ckeditor)
         # 4. User enters title
+        title_field = self.browser.find_element(By.ID, "id_title")
+        title_field.send_keys("Test title")
         # 5. User clicks on bold button
+        bold_button = self.browser.find_element(By.CSS_SELECTOR, "span.cke_button__bold_icon")
+        bold_button.click()
         # 6. User types in word "Bold"
+        ckeditor_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.send_keys('Bold ')
         # 7. User clicks on table addition button
+        table_addition_button = self.browser.find_element(By.CSS_SELECTOR, ".cke_button__table_icon")
+        table_addition_button.click()
         # 8. User enters table parameters (number of rows and columns)
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "cke_dialog_title")))
+        required_field_labels = self.browser.find_elements(By.CLASS_NAME, 'cke_required')
+        row_number_field_id = [field for field in required_field_labels if field.accessible_name == "Liczba wierszy"][0].get_attribute("for")
+        col_number_field_id = [field for field in required_field_labels if field.accessible_name == "Liczba kolumn"][0].get_attribute("for")
+        row_number_field = self.browser.find_element(By.ID, row_number_field_id)
+        row_number_field.click()
+        row_number_field.clear()
+        row_number_field.send_keys('3')
+        col_number_field = self.browser.find_element(By.ID, col_number_field_id)
+        col_number_field.click()
+        col_number_field.clear()
+        col_number_field.send_keys('6')
+        # 8.1 User clicks on "OK" button
+        cke_dialog_buttons = self.browser.find_elements(By.CLASS_NAME, "cke_dialog_ui_button")
+        ok_button = [button for button in cke_dialog_buttons if button.accessible_name == "OK"][0]
+        ok_button.click()
         # 9. User enters some content in table
+        ckeditor_iframe = self.browser.find_element(By.CSS_SELECTOR, ".cke_wysiwyg_frame")
+        self.browser.switch_to.frame(ckeditor_iframe)
+        self.browser.maximize_window()
+        table = self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
+        self.assertTrue(table, "No table found")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        for i, row in enumerate(rows):
+            cells = row.find_elements(By.TAG_NAME, "td")
+            for j, cell in enumerate(cells):
+                cell.click()
+                self.actions.send_keys(f'row {i}, cell {j}')
+                self.actions.perform()
+        self.browser.switch_to.default_content()
         # 10. User saves an article
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        self.assertEqual(save_button.text, "Zapisz")
+        self.browser.execute_script("arguments[0].scrollIntoView(true);", save_button)
+        save_button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@type='submit']")))
+        save_button.click()
+
+        # TODO Add testing dialog window
+        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
+        #   * User clicks on "yes"
+
         # 11. User is redirected to proper page and added article with proper formatting is shown
+        self.assertEqual(self.browser.current_url, edit_link_url)
+        self.assertTrue('Test title' in self.browser.page_source)
+        self.assertTrue('<strong>Bold </strong>' in self.browser.page_source)
+        self.assertTrue('<td>row 0, cell 0</td>' in self.browser.page_source)
+        self.assertTrue('<td>row 2, cell 5</td>' in self.browser.page_source)
         # 12. User quits the browser
-        pass
 
     # TODO
     def test_photo_addition_in_ckeditor(self):
@@ -396,18 +465,31 @@ class FunctionalTests(LiveServerTestCase):
         # 5. Previously added image is presented on the page
         pass
 
-    # TODO
     def test_edit_page_for_all_pages_are_present(self):
         # Fixture:
         # 1. User logs into admin panel
+        self.login_admin()
         # Actual test:
         # 1. For every edit page link:
-        #   * Click on the link
-        #   * Check if edit page is presented
-        #   * Go back
-        #   * Select next link
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        edit_link_texts = [l.text for l in edit_links]
+        self.browser.maximize_window()
+        for edit_link_text in edit_link_texts:
+            self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+            edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+            edit_link = [l for l in edit_links if l.text == edit_link_text][0]
+            #   * Click on the link
+            edit_link.click()
+            ckeditor = self.wait.until(EC.presence_of_element_located((By.ID, 'cke_id_content')))
+            header = self.browser.find_element(By.ID, "edit_page_title")
+            #   * Check if edit page is presented
+            self.assertEqual(header.text, edit_link_text)
+            self.assertTrue(ckeditor)
+            #   * Go back
+            self.browser.back()
+            #   * Select next link
         # 2. Quit browser
-        pass
 
     # TODO
     def test_page_selection_for_articles(self):
