@@ -122,16 +122,20 @@ class ArticlesAppTests(LiveServerTestCase):
             article_title = site_tree.xpath("//article/h1")[0].text
             self.assertEqual(article_title, 'Test Title')
 
-    # TODO
     def test_edit_pages_urls(self):
-        pass
+        default_edit_urls = [page['edit_url'] for _, page in settings.DEFAULT_PAGES.items()]
+        self.client.login(username='admin', password='password')
+        for url in default_edit_urls:
+            response = self.client.get(f'{url}')
+            self.assertEqual(response.status_code, 200, f"Url: {url} is not correct")
 
-    # TODO CI/CD on github research
-    # TODO CSS for admin page
-    # TODO CSS for articles
-    # TODO Docker research
+            # TODO CI/CD on github research
+            # TODO CSS for admin page
+            # TODO CSS for articles
+            # TODO Docker research
 
-    # TODO
+            # TODO
+
     def test_all_links_returns_200(self):
         pass
 
@@ -144,8 +148,3 @@ class ArticlesAppTests(LiveServerTestCase):
 
     def test_previously_added_articles_shown_on_edit_pages(self):
         pass
-
-
-
-
-

@@ -491,31 +491,63 @@ class FunctionalTests(LiveServerTestCase):
             #   * Select next link
         # 2. Quit browser
 
-    # TODO
     def test_page_selection_for_articles(self):
         # Fixture:
         # 1. User logs into admin panel
+        self.login_admin()
         # 2. User clicks on main site's edit page link
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        main_page_edit_link = [link for link in edit_links if link.text == "Główna"][0]
+        main_page_edit_link.click()
         # 3. User clicks on "Add new article" button
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
         # Actual test:
         # 1. There is no option to select other pages for article to appear
-        # 2. User adds some mock article
-        # 3. User clicks on "Save" button
-        # 4. User is redirected to main page where the added article is present
-        pass
+        self.wait.until(EC.presence_of_element_located((By.ID, "edit_page_title")))
+        page_selection = self.browser.find_elements(By.ID, "id_page")
+        self.assertFalse(page_selection)
 
     # TODO
     def test_edit_option_present(self):
         # Fixture:
         # 1. User logs into admin panel
-        # 2. User adds an article and saves it
+        self.login_admin()
+        # 2. User adds an article to main page and saves it
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        main_page_edit_link = [link for link in edit_links if link.text == "Główna"][0]
+        main_page_edit_link.click()
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
+        title_field = self.browser.find_element(By.ID, "id_title")
+        title_field.send_keys("Test title")
+        ckeditor_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.send_keys('Test content')
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        save_button.click()
+
+        # TODO Add testing dialog window
+        #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
+        #   * User clicks on "yes"
+
         # 3. Goes back to main admin site
+        self.browser.get(self.url_admin)
         # 4. User clicks on main site's edit page link
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        main_page_edit_link = [link for link in edit_links if link.text == "Główna"][0]
+        main_page_edit_link.click()
         # Actual test:
         # 1. Previously added article is displayed correctly
+        self.assertTrue("Test title" in self.browser.page_source)
+        self.assertTrue("Test content" in self.browser.page_source)
         # 2. Edit button is present next to the article
+        edit_button = self.browser.find_element(By.ID, "edit_button")
+        self.assertTrue(edit_button)
         # 3. User goes back to the main admin page
-        pass
+        self.browser.get(self.url_admin)
 
     # TODO
     def test_edit_option_changes_content_of_articles_on_actual_page(self):
