@@ -1,4 +1,5 @@
 import random
+import time
 
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
@@ -278,11 +279,13 @@ class FunctionalTests(LiveServerTestCase):
         self.login_admin()
         # 4. For every link redirecting to edit pages:
         edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
-        for link in edit_links:
+        for i in range(len(edit_links)):
             #   * Click on the link
+            edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+            link = edit_links[i]
             link.click()
             self.wait.until(EC.presence_of_element_located((By.XPATH, "//button")))
-            buttons = self.browser.find_elements(By.XPATH, "//button")
+            buttons = self.browser.find_elements(By.TAG_NAME, "button")
             buttons_texts = [button.text for button in buttons]
             #   * Page with Add new article button and Title is presented
             self.assertTrue('Dodaj nowy artykuł' in buttons_texts, 'There is no "Add new article" button')
@@ -291,20 +294,26 @@ class FunctionalTests(LiveServerTestCase):
             add_new_article_button.click()
             #   * Form with Title, content and save button is presented
             title_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='title']")))
-            content_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='content']")))
+            content_form = self.wait.until(EC.presence_of_element_located((By.XPATH, "/html/body")))
+
             self.assertTrue(title_form, 'There is no title input')
             self.assertTrue(content_form, 'There is no content input')
-            self.assertTrue('Zapisz' in buttons_texts, 'There is no "Save" button')
+            save_button = self.wait.until(EC.element_to_be_clickable((By.ID, "save_button")))
+            self.assertTrue('Zapisz' in save_button.text, 'There is no "Save" button')
             #   * Content can be edited as in text editor
             ckeditor_form = self.browser.find_element(By.ID, 'cke_id_content')
             self.assertTrue(ckeditor_form)
             title_form.click()
             title_form.send_keys('Test Title')
-            content_form.click()
+            ckeditor_form.click()
             content_form.send_keys('Test Content')
-            save_button = self.browser.find_element(By.XPATH, "//input[@type='submit']")
             #   * User clicks on Save button
+            save_button = self.browser.find_element(By.ID, "save_button")
+            self.wait.until(EC.visibility_of_element_located((By.ID, "save_button")))
+            self.browser.maximize_window()
             save_button.click()
+            self.browser.set_window_size(1920, 1080)
+
 
             # TODO Add testing dialog window
             #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
@@ -314,20 +323,23 @@ class FunctionalTests(LiveServerTestCase):
             self.browser.back()
             self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome']")))
             admin_tools = self.browser.find_elements(By.XPATH, "//a[@class='nav-link admin_welcome']")
-            # 5. User clicks on "Show page" button on top of the edit page
-            view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
-            view_link.click()
-            # 6. For every link in navigation menu:
-            self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='navbarNav']/ul/li/a")))
+        # 5. User clicks on "Show page" button on top of the edit page
+        view_link = [el for el in admin_tools if el.text == 'Zobacz stronę'][0]
+        view_link.click()
+        # 6. For every link in navigation menu:
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='navbarNav']/ul/li/a")))
+        navigation_menu_links = self.browser.find_elements(By.XPATH, "//div[@id='navbarNav']/ul/li/a")
+
+        for i in range(len(navigation_menu_links)):
+            #   * Click on navigation menu link
             navigation_menu_links = self.browser.find_elements(By.XPATH, "//div[@id='navbarNav']/ul/li/a")
-            for nav_link in navigation_menu_links:
-                #   * Click on navigation menu link
-                nav_link.click()
-                #   * User is presented with corresponding page
-                #   * User checks if previously added article is presented on the page in proper place
-                self.assertTrue('Test Title' in self.browser.page_source)
-                #   * User checks if articles title and content is presented
-                self.assertTrue('Test Content' in self.browser.page_source)
+            nav_link = navigation_menu_links[i]
+            nav_link.click()
+            #   * User is presented with corresponding page
+            #   * User checks if previously added article is presented on the page in proper place
+            self.assertTrue('Test Title' in self.browser.page_source)
+            #   * User checks if articles title and content is presented
+            self.assertTrue('Test Content' in self.browser.page_source)
 
     # TODO
     def test_contact_page_editing(self):
@@ -551,6 +563,7 @@ class FunctionalTests(LiveServerTestCase):
 
     # TODO
     def test_edit_option_changes_content_of_articles_on_actual_page(self):
+        self.login_admin()
         # Fixture:
         # 1. User logs into admin panel
         # 2. User adds an article and saves it

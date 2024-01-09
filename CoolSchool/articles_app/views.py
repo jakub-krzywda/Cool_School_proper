@@ -3,49 +3,63 @@ from .forms import ArticleForm
 from datetime import datetime
 from .models import Article, Page
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
 
 
 def is_superuser(user):
     return user.is_authenticated and user.is_superuser
 
 
-@login_required
-@user_passes_test(is_superuser)
-def add_main(request):
+def render_edit_page_based_on_template(request, page_name):
+    edit_url = Page.objects.get(title=page_name).edit_url
+    articles = Article.objects.filter(page__title=page_name)
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
             article = form.save(commit=False)
-            article.pub_date = datetime.now()
+            article.pub_date = timezone.now()
+            article.page = Page.objects.get(title=page_name)
             article.save()
-            return redirect('index')
+            return redirect(edit_url)
     else:
         form = ArticleForm()
-    return render(request, 'edit_page.html', context={'page_name': 'Główna', 'form': form})
+    return render(request, 'edit_page.html', context={'page_name': page_name, 'form': form, 'articles': articles})
+
+
+@login_required
+@user_passes_test(is_superuser)
+def add_main(request):
+    return render_edit_page_based_on_template(request, 'Główna')
 
 
 @login_required
 @user_passes_test(is_superuser)
 def add_news(request):
-    return render(request, 'edit_page.html', context={'page_name': 'Aktualności'})
+    return render_edit_page_based_on_template(request, 'Aktualności')
 
 
 @login_required
 @user_passes_test(is_superuser)
 def add_courses(request):
-    return render(request, 'edit_page.html', context={'page_name': 'Kursy'})
+    return render_edit_page_based_on_template(request, 'Kursy')
 
 
 @login_required
 @user_passes_test(is_superuser)
 def add_regulamin(request):
-    return render(request, 'edit_page.html', context={'page_name': 'Regulamin'})
+    return render_edit_page_based_on_template(request, 'Regulamin')
 
 
 @login_required
 @user_passes_test(is_superuser)
 def add_privacy_policy(request):
-    return render(request, 'edit_page.html', context={'page_name': 'Polityka Prywatności'})
+    return render_edit_page_based_on_template(request, 'Polityka Prywatności')
+
+
+@login_required
+@user_passes_test(is_superuser)
+def add_contact(request):
+    return render_edit_page_based_on_template(request, 'Kontakt')
 
 
 def render_page_based_on_index_template(request, page_name):

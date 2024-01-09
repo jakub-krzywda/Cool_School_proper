@@ -1,6 +1,7 @@
 from django import forms
 from .models import Article
 from ckeditor.widgets import CKEditorWidget
+from ckeditor.fields import RichTextField
 
 
 class ArticleForm(forms.ModelForm):
@@ -8,4 +9,4 @@ class ArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
-        fields = ['title', 'page']
+        fields = ['title', 'content']

@@ -26,6 +26,12 @@ class ArticlesAppTests(LiveServerTestCase):
             Page.objects.get_or_create(title=title, page_url=self.default_pages[title]['url'],
                                        edit_url=self.default_pages[title]['edit_url'])
 
+        for page in Page.objects.all():
+            Article.objects.get_or_create(title='Test Title1', content='Test Content', pub_date=timezone.now(),
+                                          page=page)
+            Article.objects.get_or_create(title='Test Title2', content='Test Content', pub_date=timezone.now(),
+                                          page=page)
+
     def tearDown(self) -> None:
         pass
 
@@ -147,4 +153,7 @@ class ArticlesAppTests(LiveServerTestCase):
         pass
 
     def test_previously_added_articles_shown_on_edit_pages(self):
+        pass
+
+    def test_adding_new_articles(self):
         pass

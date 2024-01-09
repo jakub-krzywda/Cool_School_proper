@@ -26,6 +26,7 @@ urlpatterns = [
     path('add_article/add_courses/', views.add_courses, name="add_courses"),
     path('add_article/add_regulamin/', views.add_regulamin, name="add_regulamin"),
     path('add_article/add_privacy_policy/', views.add_privacy_policy, name="add_privacy_policy"),
+    path('add_article/add_contact/', views.add_contact, name="add_contact"),
     path('news/', views.news, name="news"),
     path('courses/', views.courses, name="courses"),
     path('regulamin/', views.regulamin, name="regulamin"),
