@@ -33,4 +33,5 @@ urlpatterns = [
     path('privacy_policy/', views.privacy_policy, name="privacy_policy"),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('contact/', views.contact, name='contact'),
+    path('edit_article/<int:article_id>/', views.edit_article, name='edit_article'),
 ]

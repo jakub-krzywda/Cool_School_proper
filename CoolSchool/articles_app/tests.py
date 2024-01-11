@@ -125,7 +125,7 @@ class ArticlesAppTests(LiveServerTestCase):
                                           page=page)
             response = self.client.get(f"/{urls['url']}")
             site_tree = html.fromstring(response.content)
-            article_title = site_tree.xpath("//article/h1")[0].text
+            article_title = site_tree.xpath("//article/h1")[2].text
             self.assertEqual(article_title, 'Test Title')
 
     def test_edit_pages_urls(self):
@@ -143,13 +143,13 @@ class ArticlesAppTests(LiveServerTestCase):
             response = self.client.get(link.attrib['href'])
             self.assertEqual(response.status_code, 200, f"Url: {link.attrib['href']} is not correct")
 
-    # TODO
-    def test_edit_forms(self):
-        pass
-
-    # TODO
     def test_edition_of_articles(self):
-        pass
+        self.client.login(username='admin', password='password')
+        articles = Article.objects.all()
+        article0 = articles[0]
+        article_edit_url = f'{self.live_server_url}/edit_article/{article0.id}/'
+        response = self.client.get(article_edit_url)
+        self.assertEqual(response.status_code, 200, f"Url: {article_edit_url} is not correct")
 
     def test_previously_added_articles_shown_on_edit_pages(self):
         self.client.login(username='admin', password='password')
@@ -166,8 +166,8 @@ class ArticlesAppTests(LiveServerTestCase):
         for page in pages:
             response = self.client.post(page.edit_url, {'title': 'Test Title3', 'content': 'Test Content3'})
             self.assertEqual(response.status_code, 302, f"Url: {page.edit_url} is not correct")
-            response = self.client.get(page.page_url)
+            response = self.client.get(f'/{page.page_url}')
             site_tree = html.fromstring(response.content)
             article_title = site_tree.xpath("//article/h1")[2]
             self.assertIn('Test Title3', article_title.text)
-            self.assertIn('Test Content3', article_title.tail)
+            self.assertIn('Test Content3', response.content.decode('utf-8'))

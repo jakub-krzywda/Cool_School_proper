@@ -50,29 +50,14 @@
             {% for article in articles %}
                 <article>
                     <h1>{{ article.title }}</h1>
-                    <div class="main"> {{ article.content }}</div>
+                    <div class="main"> {{ article.content | safe }}</div>
                 </article>
             {% endfor %}
-
-            <div id="map">
-                <h1>Znajdź nas na mapie</h1>
-                <div style="text-decoration:none; overflow:hidden;max-width:100%;width:800px;height:450px;">
-                    <div id="my-map-display" style="height:100%; width:100%;max-width:100%;">
-                        <iframe style="height:100%;width:100%;border:0;" frameborder="0" src="https://www.google.com/maps/embed/v1/place?q=Murowianka+8,+Bochnia,+Poland&amp;key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"></iframe>
-                    </div>
-                    <a class="googlemaps-made" rel="nofollow" href="https://www.bootstrapskins.com/themes" id="enable-map-data">premium
-                        bootstrap themes</a>
-                    <style>#my-map-display .text-marker {
-                    }
-
-                    .map-generator {
-                        max-width: 100%;
-                        max-height: 100%;
-                        background: none;
-                    }
-                    </style>
-                </div>
+            <div id="mapa">
+                <h2> Znajdź nas na mapie!</h2>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2566.281823754403!2d20.43356531212409!3d49.96857317138536!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471624cad83c785b%3A0xe736571bdcf6693e!2sMurowianka%208%2C%2032-700%20Bochnia!5e0!3m2!1spl!2spl!4v1705009717963!5m2!1spl!2spl" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
+
         </div>
         <div class="col-2">
         </div>

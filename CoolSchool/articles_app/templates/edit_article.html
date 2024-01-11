@@ -58,11 +58,11 @@
                 <div class="accordion" id="accordionExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button id="add_new" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Dodaj nowy artykuł
+                            <button id="edit_article" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                                Edytuj Artykuł
                             </button>
                         </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                        <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                             <div class="accordion-body">
                                 <form method="post">
                                     {% csrf_token %}
@@ -79,7 +79,7 @@
                     <article>
                         <h1>{{ article.title }}</h1>
                         {{ article.content|safe }}
-                        <a href="{% url 'edit_article' article.id %}" id="edit_button" class="btn btn-primary">Edytuj</a>
+                        <a href="{% url 'edit_article' article.id %}" class="btn btn-primary">Edytuj</a>
                     </article>
                 {% endfor %}
                 {% if page_name == 'Kontakt' %}

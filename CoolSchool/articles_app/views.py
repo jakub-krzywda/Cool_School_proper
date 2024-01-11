@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ArticleForm
 from datetime import datetime
 from .models import Article, Page
@@ -101,3 +101,18 @@ def contact(request):
             default_pages_dict.update({page.title: page.page_url.split('/')[0]})
     return render(request, 'contact.html', {'default_pages_dict': default_pages_dict, 'current_page_name': 'Kontakt',
                                             'articles': articles})
+
+
+def edit_article(request, article_id):
+    article = get_object_or_404(Article, pk=article_id)
+    articles = Article.objects.filter(page__title=article.page.title)
+    articles = articles.exclude(id=article_id)
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            article.save()
+            return redirect(article.page.edit_url)
+    else:
+        form = ArticleForm(instance=article)
+
+    return render(request, 'edit_article.html', {'form': form, 'article': article, 'articles': articles, 'page_name': article.page.title})
