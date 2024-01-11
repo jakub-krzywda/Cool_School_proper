@@ -153,49 +153,62 @@ class FunctionalTests(LiveServerTestCase):
 
         # 9. Below there is a list containing pages that can be modified: [Główna, Aktualności, Kursy, Regulamin,
         #                                                                 Polityka_Prywatności]
-        pages = self.browser.find_elements(By.XPATH, "//ul/li[@class=page_name]")
+        pages = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']")
         page_names = [a.text for a in pages]
         expected_names = tuple(settings.DEFAULT_PAGES.keys())
+        self.assertTrue(pages)
         for name in page_names:
             self.assertIn(name, expected_names)
 
-        # 10. In each page's row there is "Dodaj" (add) button
+        # 10. Every page has a link that's name is the same as page's name and redirects to edit page
         add_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']//a[@class='addlink']")
         add_links_names = [a.text for a in add_links]
         for add_link in add_links_names:
             self.assertIn(add_link, expected_names)
 
+        # 10.1 User clicks on random page link
         random_page = random.choice(add_links)
         random_page_name = random_page.accessible_name
         random_page.click()
 
-        # 11. After clicking "Dodaj" User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
+        # 11. After clicking link User is presented with edit page, which has title of edited page (Główna, Aktualności, Kursy etc.)
         edit_page_title = self.wait.until(EC.presence_of_element_located((By.ID, "edit_page_title")))
         self.assertEqual(edit_page_title.text, random_page_name)
 
-        # 11.1 There is a form where (s)he can add new article with such parameters as:
+        # 11.1 There is a button that says "Dodaj nowy artykuł"
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
+
+        # 11.2 There is a form where (s)he can add new article with such parameters as:
         #     [Tytuł(title), Zawartość(content)] and buttons "Zapisz"(save), "Zapisz i dodaj kolejny"(save and add next),
         #     "Zapisz i kontynuuj edycje" (save and continue editing)
         title_label = self.browser.find_element(By.XPATH, "//label[@for='id_title']").text
         content_label = self.browser.find_element(By.XPATH, "//label[@for='id_content']").text
-        self.assertEqual('Tytuł', title_label)
-        self.assertEqual('Zawartość', content_label)
+        self.assertEqual('Tytuł:', title_label)
+        self.assertEqual('Treść:', content_label)
 
         # 12. User enters title and content and clicks save
+        self.browser.maximize_window()
         title_form = self.wait.until(EC.presence_of_element_located((By.ID, 'id_title')))
-        content_form = self.wait.until(EC.presence_of_element_located((By.ID, 'id_content')))
+        ckeditor_form = self.browser.find_element(By.ID, 'cke_id_content')
+        content_form = self.browser.find_element(By.XPATH, "//html/body")
         title_form.click()
         title_form.send_keys('Title')
-        content_form.click()
+        ckeditor_form.click()
         content_form.send_keys('Content')
         self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
         save_buttons = self.browser.find_elements(By.XPATH, "//button[@type='submit']")
         save_buttons_values = [button.accessible_name for button in save_buttons]
-        expected_button_names = ("Zapisz", "Zapisz i dodaj kolejny",
-                                 "Zapisz i kontynuuj edycje")
+        expected_button_names = ("Zapisz")
         self.assertTrue(all([button_value in expected_button_names for button_value in save_buttons_values]),
                         'Wrong button names')
         save_buttons[0].click()
+        # 13. New added article appears on the page
+        self.assertIn('Title', self.browser.page_source)
+        self.assertIn('Content', self.browser.page_source)
+        # 14. User quits the browser
+        self.browser.quit()
+
 
     def test_logged_user_clicks_on_show_page(self):
         # 1. User comes to admin page using admin url
@@ -302,6 +315,7 @@ class FunctionalTests(LiveServerTestCase):
             self.assertTrue('Zapisz' in save_button.text, 'There is no "Save" button')
             #   * Content can be edited as in text editor
             ckeditor_form = self.browser.find_element(By.ID, 'cke_id_content')
+            content_form = self.browser.find_element(By.XPATH, "//html/body")
             self.assertTrue(ckeditor_form)
             title_form.click()
             title_form.send_keys('Test Title')
@@ -313,7 +327,6 @@ class FunctionalTests(LiveServerTestCase):
             self.browser.maximize_window()
             save_button.click()
             self.browser.set_window_size(1920, 1080)
-
 
             # TODO Add testing dialog window
             #   * "Do you want to save this article" prompt is presented with options "yes" and "no"
@@ -463,19 +476,19 @@ class FunctionalTests(LiveServerTestCase):
         self.assertTrue('<td>row 2, cell 5</td>' in self.browser.page_source)
         # 12. User quits the browser
 
-    # TODO
-    def test_photo_addition_in_ckeditor(self):
-        # Fixture:
-        # 1. User logs into admin panel,
-        # 2. clicks on random page edit link,
-        # 3. clicks on "Add new article" button
-        # Actual test:
-        # 1. User clicks on ckeditor's add image button
-        # 2. User selects an image from local disc
-        # 3. User clicks on "Save" button
-        # 4. User is redirected with corresponding page
-        # 5. Previously added image is presented on the page
-        pass
+    # # TODO
+    # def test_photo_addition_in_ckeditor(self):
+    #     # Fixture:
+    #     # 1. User logs into admin panel,
+    #     # 2. clicks on random page edit link,
+    #     # 3. clicks on "Add new article" button
+    #     # Actual test:
+    #     # 1. User clicks on ckeditor's add image button
+    #     # 2. User selects an image from local disc
+    #     # 3. User clicks on "Save" button
+    #     # 4. User is redirected with corresponding page
+    #     # 5. Previously added image is presented on the page
+    #     pass
 
     def test_edit_page_for_all_pages_are_present(self):
         # Fixture:
@@ -535,8 +548,10 @@ class FunctionalTests(LiveServerTestCase):
         add_new_article_button.click()
         title_field = self.browser.find_element(By.ID, "id_title")
         title_field.send_keys("Test title")
-        ckeditor_form = self.browser.find_element(By.XPATH, "/html/body")
-        ckeditor_form.send_keys('Test content')
+        ckeditor_form = self.browser.find_element(By.ID, "cke_id_content")
+        content_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.click()
+        content_form.send_keys('Test content')
         save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
         save_button.click()
 
@@ -562,59 +577,122 @@ class FunctionalTests(LiveServerTestCase):
         self.browser.get(self.url_admin)
 
     # TODO
-    def test_edit_option_changes_content_of_articles_on_actual_page(self):
+    # def test_edit_option_changes_content_of_articles_on_actual_page(self):
+    #     self.login_admin()
+    #     # Fixture:
+    #     # 1. User logs into admin panel
+    #     # 2. User adds an article and saves it
+    #     # 3. Goes back to main admin site
+    #     # 4. User clicks on main site's edit page link
+    #     # Actual test:
+    #     # 1. Previously added article is displayed correctly
+    #     # 2. Edit button is present next to the article
+    #     # 3. User clicks on edit button
+    #     # 4. Edit mode (ckeditor) is presented with content of previously added article
+    #     # 5. User changes the content
+    #     # 6. User clicks on the "Save" button
+    #     # 7, User is redirected to main site's edit page where article with changed content is presented
+    #     # 8. User goes to main site where article with changed content is present
+    #     pass
+    #
+    # # TODO
+    # def test_show_on_whiteboard_option_on_edit_pages(self):
+    #     # Fixture:
+    #     # 1. User logs into admin panel
+    #     # 2. User goes to the news site's edit page
+    #     # 3. User clicks on "Add new article" button
+    #     # Actual test
+    #     # 1. "Show on main page's whiteboard" checkbox is present.
+    #     pass
+    #
+    # # TODO
+    # def test_whiteboard_present_on_index_page(self):
+    #     # Fixture:
+    #     # 1. User logs into admin panel
+    #     # 2. User goes to the news site's edit page
+    #     # 3. User adds new article for news page and checks the checkbox for it to be presented on whiteboard
+    #     # Actual test:
+    #     # 1. User goes to main page
+    #     # 2. Green whiteboard is presented on the page with links to previously added article on news page
+    #     # 3. User clicks on the link on the whiteboard
+    #     # 4. Link redirects user to the news page and anchor for previously added article
+    #     pass
+    #
+    # # TODO
+    # def test_deleting_articles(self):
+    #     # Fixture:
+    #     # 1. User logs into admin panel
+    #     # 2. User goes to the news site's edit page
+    #     # 3. User adds new article on news site
+    #     # Actual test:
+    #     # 1. User goes back to main admin panel's site
+    #     # 2. User clicks on link that leads to news page's edit site
+    #     # 3. "Delete" button is present next to previously added article
+    #     # 4. User clicks on "Delete"
+    #     # 5. Article is deleted and is no longer presented on the edit page
+    #     # 6. User clicks on "show page" button in the navigation bar and is redirected to News site
+    #     # 7. Deleted article is not presented on the page
+    #     pass
+    # TODO
+    def test_changing_admin_password(self):
+        # 1. User comes to admin site using admin url
+        # 2. User is presented with a login page
+        # 3. User enters login and password
         self.login_admin()
-        # Fixture:
-        # 1. User logs into admin panel
-        # 2. User adds an article and saves it
-        # 3. Goes back to main admin site
-        # 4. User clicks on main site's edit page link
-        # Actual test:
-        # 1. Previously added article is displayed correctly
-        # 2. Edit button is present next to the article
-        # 3. User clicks on edit button
-        # 4. Edit mode (ckeditor) is presented with content of previously added article
-        # 5. User changes the content
-        # 6. User clicks on the "Save" button
-        # 7, User is redirected to main site's edit page where article with changed content is presented
-        # 8. User goes to main site where article with changed content is present
-        pass
-
-    # TODO
-    def test_show_on_whiteboard_option_on_edit_pages(self):
-        # Fixture:
-        # 1. User logs into admin panel
-        # 2. User goes to the news site's edit page
-        # 3. User clicks on "Add new article" button
-        # Actual test
-        # 1. "Show on main page's whiteboard" checkbox is present.
-        pass
-
-    # TODO
-    def test_whiteboard_present_on_index_page(self):
-        # Fixture:
-        # 1. User logs into admin panel
-        # 2. User goes to the news site's edit page
-        # 3. User adds new article for news page and checks the checkbox for it to be presented on whiteboard
-        # Actual test:
-        # 1. User goes to main page
-        # 2. Green whiteboard is presented on the page with links to previously added article on news page
-        # 3. User clicks on the link on the whiteboard
-        # 4. Link redirects user to the news page and anchor for previously added article
-        pass
-
-    # TODO
-    def test_deleting_articles(self):
-        # Fixture:
-        # 1. User logs into admin panel
-        # 2. User goes to the news site's edit page
-        # 3. User adds new article on news site
-        # Actual test:
-        # 1. User goes back to main admin panel's site
-        # 2. User clicks on link that leads to news page's edit site
-        # 3. "Delete" button is present next to previously added article
-        # 4. User clicks on "Delete"
-        # 5. Article is deleted and is no longer presented on the edit page
-        # 6. User clicks on "show page" button in the navigation bar and is redirected to News site
-        # 7. Deleted article is not presented on the page
-        pass
+        # 4. User is presented with admin page
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
+        # 5. Under main header there is a menu that says "Witaj <name of the user>." And has options such as:
+        # [Zobacz stronę, Zmień hasło, Wyloguj]
+        user_tools = self.browser.find_element(By.CSS_SELECTOR, 'p.admin_welcome')
+        self.assertIn(f'Witaj, {self.login}', user_tools.text)
+        # 6. User clicks on "Change password" button
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome' and text()='Zmień hasło']")))
+        save_button.click()
+        # 7. User is presented with a form where (s)he can change password
+        change_password_form = self.wait.until(EC.presence_of_element_located((By.ID, "change_password_form")))
+        self.assertTrue(change_password_form, 'There is no change password form')
+        # 8. User enters new password and clicks on "Save" button
+        password_field = self.browser.find_element(By.ID, "id_password1")
+        password_field.click()
+        password_field.send_keys('newPassword')
+        password_field = self.browser.find_element(By.ID, "id_password2")
+        password_field.click()
+        password_field.send_keys('newPassword')
+        save_button = self.browser.find_element(By.XPATH, "//button[@type='submit']")
+        save_button.click()
+        # 9. User is redirected to admin page
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
+        # 10. User logs out
+        logout_button = self.browser.find_element(By.XPATH, "//a[@class='nav-link admin_welcome' and text()='Wyloguj']")
+        logout_button.click()
+        # 11. User tries to log in using old password
+        username_input = self.wait.until(EC.presence_of_element_located((By.ID, "id_username")))
+        password_input = self.wait.until(EC.presence_of_element_located((By.ID, 'id_password')))
+        login_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='submit']")))
+        username_input.click()
+        username_input.send_keys(self.login)
+        password_input.click()
+        password_input.send_keys(self.password)
+        login_button.click()
+        # 12. User is presented with error message
+        error = self.browser.find_element(By.CSS_SELECTOR, "p.errornote")
+        self.assertIn("Wprowadź poprawne dane w polach ", error.text)
+        # 13. User logs in using new password
+        username_input = self.wait.until(EC.presence_of_element_located((By.ID, "id_username")))
+        password_input = self.wait.until(EC.presence_of_element_located((By.ID, 'id_password')))
+        login_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='submit']")))
+        username_input.click()
+        username_input.send_keys(self.login)
+        password_input.click()
+        password_input.send_keys('newPassword')
+        login_button.click()
+        # 14. User is presented with admin page
+        header = self.browser.find_element(By.ID, "admin_title")
+        self.assertEqual("Strona Admina Cool School", header.text)
+        # 15. User logs out
+        logout_button = self.browser.find_element(By.XPATH, "//a[@class='nav-link admin_welcome' and text()='Wyloguj']")
+        logout_button.click()
+        # 16. User quits browser
+        self.browser.quit()

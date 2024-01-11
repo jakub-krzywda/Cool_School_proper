@@ -128,9 +128,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEFAULT_PAGES = {
     'Główna': {'url': '', 'edit_url': '/add_article/main/'},
-    'Aktualności': {'url': 'news/', 'edit_url': '/add_article/add_news/'},
-    'Kursy': {'url': 'courses/', 'edit_url': '/add_article/add_courses/'},
-    'Regulamin': {'url': 'regulamin/', 'edit_url': '/add_article/add_regulamin/'},
-    'Polityka Prywatności': {'url': 'privacy_policy/', 'edit_url': '/add_article/add_privacy_policy/'},
-    'Kontakt': {'url': 'contact/', 'edit_url': '/add_article/add_contact/'}
+    'Aktualności': {'url': 'news/', 'edit_url': '/add_article/news/'},
+    'Kursy': {'url': 'courses/', 'edit_url': '/add_article/courses/'},
+    'Regulamin': {'url': 'regulamin/', 'edit_url': '/add_article/regulamin/'},
+    'Polityka Prywatności': {'url': 'privacy_policy/', 'edit_url': '/add_article/privacy_policy/'},
+    'Kontakt': {'url': 'contact/', 'edit_url': '/add_article/contact/'}
 }

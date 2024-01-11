@@ -135,25 +135,39 @@ class ArticlesAppTests(LiveServerTestCase):
             response = self.client.get(f'{url}')
             self.assertEqual(response.status_code, 200, f"Url: {url} is not correct")
 
-            # TODO CI/CD on github research
-            # TODO CSS for admin page
-            # TODO CSS for articles
-            # TODO Docker research
-
-            # TODO
-
     def test_all_links_returns_200(self):
-        pass
+        response = self.client.get(self.live_server_url)
+        site_tree = html.fromstring(response.content)
+        links = site_tree.xpath("//a")
+        for link in links:
+            response = self.client.get(link.attrib['href'])
+            self.assertEqual(response.status_code, 200, f"Url: {link.attrib['href']} is not correct")
 
     # TODO
     def test_edit_forms(self):
         pass
 
+    # TODO
     def test_edition_of_articles(self):
         pass
 
     def test_previously_added_articles_shown_on_edit_pages(self):
-        pass
+        self.client.login(username='admin', password='password')
+        pages = Page.objects.all()
+        for page in pages:
+            response = self.client.get(page.edit_url)
+            site_tree = html.fromstring(response.content)
+            articles = site_tree.xpath("//article")
+            self.assertEqual(len(articles), 2)
 
     def test_adding_new_articles(self):
-        pass
+        self.client.login(username='admin', password='password')
+        pages = Page.objects.all()
+        for page in pages:
+            response = self.client.post(page.edit_url, {'title': 'Test Title3', 'content': 'Test Content3'})
+            self.assertEqual(response.status_code, 302, f"Url: {page.edit_url} is not correct")
+            response = self.client.get(page.page_url)
+            site_tree = html.fromstring(response.content)
+            article_title = site_tree.xpath("//article/h1")[2]
+            self.assertIn('Test Title3', article_title.text)
+            self.assertIn('Test Content3', article_title.tail)
