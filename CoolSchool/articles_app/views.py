@@ -116,3 +116,9 @@ def edit_article(request, article_id):
         form = ArticleForm(instance=article)
 
     return render(request, 'edit_article.html', {'form': form, 'article': article, 'articles': articles, 'page_name': article.page.title})
+
+
+def delete_article(request, article_id):
+    article = get_object_or_404(Article, pk=article_id)
+    article.delete()
+    return redirect(article.page.edit_url)

@@ -171,3 +171,15 @@ class ArticlesAppTests(LiveServerTestCase):
             article_title = site_tree.xpath("//article/h1")[2]
             self.assertIn('Test Title3', article_title.text)
             self.assertIn('Test Content3', response.content.decode('utf-8'))
+
+    def test_article_deletion(self):
+        self.client.login(username='admin', password='password')
+        articles = Article.objects.all()
+        article0 = articles[0]
+        article_delete_url = f'{self.live_server_url}/delete_article/{article0.id}/'
+        response = self.client.get(article_delete_url)
+        self.assertEqual(response.status_code, 302, f"Url: {article_delete_url} is not correct")
+        response = self.client.get(article0.page.page_url)
+        site_tree = html.fromstring(response.content)
+        articles = site_tree.xpath("//article")
+        self.assertEqual(len(articles), 1)

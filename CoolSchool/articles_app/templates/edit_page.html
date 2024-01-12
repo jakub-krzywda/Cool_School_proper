@@ -19,6 +19,14 @@
         crossorigin="anonymous"></script>
 <script src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<script>
+    function confirmDelete(button) {
+        var url = button.getAttribute('data-url');
+        if (confirm("Czy na pewno chcesz usunąć artykuł?")) {
+            window.location.href = url;
+        }
+    }
+</script>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid" id="nav_top">
         <a class="navbar-brand" href="{% url 'admin:index' %}">
@@ -80,6 +88,8 @@
                         <h1>{{ article.title }}</h1>
                         {{ article.content|safe }}
                         <a href="{% url 'edit_article' article.id %}" id="edit_button" class="btn btn-primary">Edytuj</a>
+                        <button type="button" data-url="{% url 'delete_article' article.id %}" id="delete_button" onclick="confirmDelete(this)" class="btn btn-danger">Usuń</button>
+
                     </article>
                 {% endfor %}
                 {% if page_name == 'Kontakt' %}

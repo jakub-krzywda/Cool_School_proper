@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.alert import Alert
 
 from CoolSchool import settings
 from CoolSchool.settings import DEFAULT_PAGES
@@ -565,42 +565,106 @@ class FunctionalTests(LiveServerTestCase):
         # 7. User is redirected to main site's edit page where article with changed content is presented
         self.assertTrue('changed' in self.browser.page_source)
 
+    def test_show_on_whiteboard_option_on_edit_pages(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        self.login_admin()
+        # 2. User goes to the news site's edit page
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        news_page_edit_link = [link for link in edit_links if link.text == "Aktualności"][0]
+        news_page_edit_link.click()
+        # 3. User clicks on "Add new article" button
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
+        # Actual test
+        # 1. "Show on main page's whiteboard" checkbox is present.
+        whiteboard_checkbox = self.browser.find_element(By.ID, "show_on_whiteboard")
+        self.assertTrue(whiteboard_checkbox)
+        self.assertEqual(whiteboard_checkbox.accessible_name, "Pokaż na tablicy ogłoszeń")
 
-    # # TODO
-    # def test_show_on_whiteboard_option_on_edit_pages(self):
-    #     # Fixture:
-    #     # 1. User logs into admin panel
-    #     # 2. User goes to the news site's edit page
-    #     # 3. User clicks on "Add new article" button
-    #     # Actual test
-    #     # 1. "Show on main page's whiteboard" checkbox is present.
-    #     pass
-    #
-    # # TODO
-    # def test_whiteboard_present_on_index_page(self):
-    #     # Fixture:
-    #     # 1. User logs into admin panel
-    #     # 2. User goes to the news site's edit page
-    #     # 3. User adds new article for news page and checks the checkbox for it to be presented on whiteboard
-    #     # Actual test:
-    #     # 1. User goes to main page
-    #     # 2. Green whiteboard is presented on the page with links to previously added article on news page
-    #     # 3. User clicks on the link on the whiteboard
-    #     # 4. Link redirects user to the news page and anchor for previously added article
-    #     pass
-    #
-    # # TODO
-    # def test_deleting_articles(self):
-    #     # Fixture:
-    #     # 1. User logs into admin panel
-    #     # 2. User goes to the news site's edit page
-    #     # 3. User adds new article on news site
-    #     # Actual test:
-    #     # 1. User goes back to main admin panel's site
-    #     # 2. User clicks on link that leads to news page's edit site
-    #     # 3. "Delete" button is present next to previously added article
-    #     # 4. User clicks on "Delete"
-    #     # 5. Article is deleted and is no longer presented on the edit page
-    #     # 6. User clicks on "show page" button in the navigation bar and is redirected to News site
-    #     # 7. Deleted article is not presented on the page
-    #     pass
+    def test_whiteboard_present_on_index_page(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        self.login_admin()
+        # 2. User goes to the news site's edit page
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        news_page_edit_link = [link for link in edit_links if link.text == "Aktualności"][0]
+        news_page_edit_link.click()
+        # 3. User adds new article for news page and checks the checkbox for it to be presented on whiteboard
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
+        title_field = self.browser.find_element(By.ID, "id_title")
+        title_field.send_keys("Test title")
+        ckeditor_form = self.browser.find_element(By.ID, "cke_id_content")
+        content_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.click()
+        content_form.send_keys('Test content')
+
+        whiteboard_checkbox = self.browser.find_element(By.ID, "show_on_whiteboard")
+        whiteboard_checkbox.click()
+
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        self.browser.maximize_window()
+        save_button.click()
+        # Actual test:
+        # 1. User goes to main page
+        self.browser.get(self.live_server_url)
+        # 2. Green whiteboard is presented on the page with links to previously added article on news page
+        whiteboard = self.wait.until(EC.presence_of_element_located((By.ID, "whiteboard")))
+        # 3. User clicks on the link on the whiteboard
+        whiteboard_links = whiteboard.find_elements(By.TAG_NAME, "a")
+        whiteboard_links[0].click()
+        # 4. Link redirects user to the news page and anchor for previously added article
+        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}#Test-title")
+
+    def test_deleting_articles(self):
+        # Fixture:
+        # 1. User logs into admin panel
+        self.login_admin()
+        # 2. User goes to the news site's edit page
+        self.wait.until(EC.presence_of_element_located((By.XPATH, "//ul/li[@class='page_name']/a")))
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        news_page_edit_link = [link for link in edit_links if link.text == "Aktualności"][0]
+        news_page_edit_link.click()
+        # 3. User adds new article on news site
+        add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
+        add_new_article_button.click()
+        title_field = self.browser.find_element(By.ID, "id_title")
+        title_field.send_keys("Test title")
+        ckeditor_form = self.browser.find_element(By.ID, "cke_id_content")
+        content_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.click()
+        content_form.send_keys('Test content')
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        self.browser.maximize_window()
+        save_button.click()
+        # Actual test:
+        # 1. User goes back to main admin panel's site
+        self.browser.back()
+        # 2. User clicks on link that leads to news page's edit site
+        edit_links = self.browser.find_elements(By.XPATH, "//ul/li[@class='page_name']/a")
+        news_page_edit_link = [link for link in edit_links if link.text == "Aktualności"][0]
+        news_page_edit_link.click()
+        # 3. "Delete" button is present next to previously added article
+        delete_button = self.wait.until(EC.element_to_be_clickable((By.ID, "delete_button")))
+        # 4. User clicks on "Delete"
+        self.browser.maximize_window()
+        delete_button.click()
+        # 4.1 User is presented with a confirmation dialog
+        self.wait.until(EC.alert_is_present())
+        alert = self.browser.switch_to.alert
+        # Akceptuj okno dialogowe (kliknij OK)
+        alert.accept()
+        # 4.2 User clicks on "OK" button
+        # 5. Article is deleted and is no longer presented on the edit page
+        time.sleep(2)
+        self.wait.until(EC.presence_of_element_located((By.ID, "edit_page_title")))
+        self.assertFalse("Test title" in self.browser.page_source)
+        # 6. User clicks on "show page" button in the navigation bar and is redirected to News site
+        show_page_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='nav-link admin_welcome' and text()='Zobacz stronę']")))
+        show_page_button.click()
+        # 7. Deleted article is not presented on the page
+        self.assertFalse("Test title" in self.browser.page_source)
+        self.browser.quit()
