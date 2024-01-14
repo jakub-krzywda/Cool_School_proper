@@ -19,6 +19,7 @@ def render_edit_page_based_on_template(request, page_name):
             article = form.save(commit=False)
             article.pub_date = timezone.now()
             article.page = Page.objects.get(title=page_name)
+            article.show_on_whiteboard = False
             article.save()
             return redirect(edit_url)
     else:
@@ -35,7 +36,22 @@ def add_main(request):
 @login_required
 @user_passes_test(is_superuser)
 def add_news(request):
-    return render_edit_page_based_on_template(request, 'Aktualności')
+    page_name = 'Aktualności'
+    edit_url = Page.objects.get(title=page_name).edit_url
+    articles = Article.objects.filter(page__title=page_name)
+    if request.method == 'POST':
+        show_on_whiteboard = 'show_on_whiteboard' in request.POST
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save(commit=False)
+            article.pub_date = timezone.now()
+            article.page = Page.objects.get(title=page_name)
+            article.show_on_whiteboard = show_on_whiteboard
+            article.save()
+            return redirect(edit_url)
+    else:
+        form = ArticleForm()
+    return render(request, 'edit_page.html', context={'page_name': page_name, 'form': form, 'articles': articles})
 
 
 @login_required
@@ -73,7 +89,16 @@ def render_page_based_on_index_template(request, page_name):
 
 
 def index(request):
-    return render_page_based_on_index_template(request, "Główna")
+    page_name = 'Główna'
+    pages = Page.objects.all()
+    articles = Article.objects.filter(page__title=page_name)
+    news_articles = Article.objects.filter(page__title='Aktualności')
+    news_articles = news_articles.filter(show_on_whiteboard=True)
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', page_name):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': page_name, 'articles': articles, 'news_articles': news_articles})
 
 
 def news(request):
@@ -110,6 +135,8 @@ def edit_article(request, article_id):
     if request.method == 'POST':
         form = ArticleForm(request.POST, instance=article)
         if form.is_valid():
+            show_on_whiteboard = 'show_on_whiteboard' in request.POST
+            article.show_on_whiteboard = show_on_whiteboard
             article.save()
             return redirect(article.page.edit_url)
     else:

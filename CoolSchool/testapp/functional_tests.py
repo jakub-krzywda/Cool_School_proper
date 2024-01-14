@@ -284,7 +284,6 @@ class FunctionalTests(LiveServerTestCase):
             self.browser.back()
         # 4. User closes browser
 
-    # TODO
     def test_added_new_articles_appears_on_proper_pages(self):
         # 1. User comes to <live_server_url>/admin
         # 2. Login panel is present
@@ -349,7 +348,6 @@ class FunctionalTests(LiveServerTestCase):
             #   * User checks if articles title and content is presented
             self.assertTrue('Test Content' in self.browser.page_source)
 
-    # TODO
     def test_contact_page_editing(self):
         # Fixture:
         # 1. User logs into admin panel
@@ -520,7 +518,6 @@ class FunctionalTests(LiveServerTestCase):
         page_selection = self.browser.find_elements(By.ID, "id_page")
         self.assertFalse(page_selection)
 
-    # TODO
     def test_edit_option_present(self):
         # Fixture:
         # 1. User logs into admin panel
@@ -565,7 +562,7 @@ class FunctionalTests(LiveServerTestCase):
         # 7. User is redirected to main site's edit page where article with changed content is presented
         self.assertTrue('changed' in self.browser.page_source)
 
-    def test_show_on_whiteboard_option_on_edit_pages(self):
+    def test_show_on_whiteboard_option(self):
         # Fixture:
         # 1. User logs into admin panel
         self.login_admin()
@@ -577,11 +574,38 @@ class FunctionalTests(LiveServerTestCase):
         # 3. User clicks on "Add new article" button
         add_new_article_button = self.wait.until(EC.presence_of_element_located((By.ID, 'add_new')))
         add_new_article_button.click()
-        # Actual test
-        # 1. "Show on main page's whiteboard" checkbox is present.
+        # 4. User is presented with add article interface (ckeditor)
+        # 5. User enters title and content
+        title_field = self.browser.find_element(By.ID, "id_title")
+        title_field.send_keys("Test title")
+        ckeditor_form = self.browser.find_element(By.ID, "cke_id_content")
+        content_form = self.browser.find_element(By.XPATH, "/html/body")
+        ckeditor_form.click()
+        content_form.send_keys('Test content')
+        # Actual test:
+        # 1. There is a checkbox "Show on main page's whiteboard"
+        # 2. User checks the checkbox "Show on main page's whiteboard"
+        self.browser.maximize_window()
+        self.wait.until(EC.presence_of_element_located((By.ID, "show_on_whiteboard")))
         whiteboard_checkbox = self.browser.find_element(By.ID, "show_on_whiteboard")
-        self.assertTrue(whiteboard_checkbox)
-        self.assertEqual(whiteboard_checkbox.accessible_name, "Pokaż na tablicy ogłoszeń")
+        whiteboard_checkbox.click()
+        # 3. User clicks on "Save" button
+        save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
+        save_button.click()
+        # 4. User is redirected to news site's edit page
+        self.wait.until(EC.presence_of_element_located((By.ID, "edit_page_title")))
+        # 5. Previously added article is presented on the page
+        self.assertTrue("Test title" in self.browser.page_source)
+        self.assertTrue("Test content" in self.browser.page_source)
+        # 6. User goes to main page
+        self.browser.get(self.live_server_url)
+        # 7. Green whiteboard is presented on the page with links to previously added article on news page
+        whiteboard = self.wait.until(EC.presence_of_element_located((By.ID, "whiteboard")))
+        # 8. User clicks on the link on the whiteboard
+        whiteboard_links = whiteboard.find_elements(By.TAG_NAME, "a")
+        whiteboard_links[0].click()
+        # 9. Link redirects user to the news page and anchor for previously added article
+        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}#Test-title")
 
     def test_whiteboard_present_on_index_page(self):
         # Fixture:
@@ -655,7 +679,6 @@ class FunctionalTests(LiveServerTestCase):
         # 4.1 User is presented with a confirmation dialog
         self.wait.until(EC.alert_is_present())
         alert = self.browser.switch_to.alert
-        # Akceptuj okno dialogowe (kliknij OK)
         alert.accept()
         # 4.2 User clicks on "OK" button
         # 5. Article is deleted and is no longer presented on the edit page

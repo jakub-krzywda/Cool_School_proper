@@ -78,6 +78,14 @@
                                         {{ form.as_p }}
                                     </div>
                                     <button id="save_button" type="submit" class="btn btn-primary">Zapisz</button>
+                                    {% if page_name == 'Aktualności' %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="show_on_whiteboard" name="show_on_whiteboard">
+                                        <label class="form-check-label" for="show_on_whiteboard">
+                                            Pokaż na tablicy ogłoszeń
+                                        </label>
+                                    </div>
+                                    {% endif %}
                                 </form>
                             </div>
                         </div>

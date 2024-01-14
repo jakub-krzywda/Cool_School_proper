@@ -13,3 +13,4 @@ class Article(models.Model):
     content = RichTextField()
     pub_date = models.DateTimeField('date published')
     page = models.ForeignKey(Page, on_delete=models.CASCADE, null=True)
+    show_on_whiteboard = models.BooleanField(default=False)

@@ -183,3 +183,26 @@ class ArticlesAppTests(LiveServerTestCase):
         site_tree = html.fromstring(response.content)
         articles = site_tree.xpath("//article")
         self.assertEqual(len(articles), 1)
+
+    def test_show_on_whiteboard_option_present_in_news_edit_page(self):
+        self.client.login(username='admin', password='password')
+        response = self.client.get('/add_article/news/')
+        site_tree = html.fromstring(response.content)
+        show_on_whiteboard_checkbox = site_tree.xpath("//input[@id='show_on_whiteboard']")
+        self.assertEqual(len(show_on_whiteboard_checkbox), 1)
+
+    def test_show_on_whiteboard_option_not_present_on_edit_pages_other_than_news(self):
+        self.client.login(username='admin', password='password')
+        pages = Page.objects.all()
+        pages = [page for page in pages if page.title != 'Aktualności']
+        for page in pages:
+            response = self.client.get(page.edit_url)
+            site_tree = html.fromstring(response.content)
+            show_on_whiteboard_checkbox = site_tree.xpath("//input[@id='show_on_whiteboard']")
+            self.assertFalse(show_on_whiteboard_checkbox)
+
+    def test_whiteboard_present_on_main_page(self):
+        response = self.client.get('/')
+        site_tree = html.fromstring(response.content)
+        whiteboard = site_tree.xpath("//ul[@id='whiteboard']")
+        self.assertEqual(len(whiteboard), 1)
