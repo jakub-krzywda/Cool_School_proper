@@ -48,12 +48,32 @@
         <div class="col-8">
             {% if current_page_name == "Główna" %}
                 <div class="container">
-                    <img id="imgWhiteboard" src="{% static 'img/tarcza.jpg' %}">
-                    <ul class="list-group" id="whiteboard">
-                        {% for news_article in news_articles %}
-                            <li class="list-group-item"><a href="{% url 'news' %}#article_{{ news_article.id }}">{{ news_article.title }}</a></li>
-                        {% endfor %}
-                    </ul>
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 id="whiteboard_title">Aktualności</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" id="whiteboard">
+                    <div class="row">
+                        <div class="col-3">
+                            <img id="imgWhiteboard" src="{% static 'img/tarcza.jpg' %}">
+                        </div>
+                        <div class="col-9">
+                            <ul class="list-group">
+                                {% for news_article in news_articles %}
+                                    <li class="list-group-item"><a href="{% url 'news' %}#article_{{ news_article.id }}">{{ news_article.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 id="whiteboard_title">Nasze mocne strony</h1>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
             {% for article in articles %}

@@ -36,9 +36,6 @@
                         <a class="nav-link admin_welcome" href="{% url 'index' %}">Zobacz stronę</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link admin_welcome" href="change_pass">Zmień hasło</a>
-                    </li>
-                    <li class="nav-item">
 
                         <a class="nav-link admin_welcome" href="{% url 'logout' %}">Wyloguj</a>
                     </li>
@@ -54,13 +51,15 @@
         <div class="col-8">
             <h1 id="admin_title">Strona Admina Cool School</h1>
             <div class="container" id="content">
-                <h2>Poniżej wybierz stronę, którą chcesz edytować</h2>
-                <p id="pages_caption">Strony</p>
-                <ul>
-                    {% for title, url, edit_url in combined %}
-                        <li class="page_name"><a class="addlink" href="{{ edit_url }}">{{ title }}</a></li>
-                    {% endfor %}
-                </ul>
+                <article style="padding: 2rem">
+                    <h2>Poniżej wybierz stronę, którą chcesz edytować</h2>
+                    <p id="pages_caption">Strony</p>
+                    <ul>
+                        {% for title, url, edit_url in combined %}
+                            <li class="page_name"><a class="addlink" href="{{ edit_url }}">{{ title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </article>
             </div>
         </div>
         <div class="col-2">
