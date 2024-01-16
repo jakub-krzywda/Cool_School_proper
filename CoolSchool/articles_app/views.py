@@ -12,7 +12,8 @@ def is_superuser(user):
 
 def render_edit_page_based_on_template(request, page_name):
     edit_url = Page.objects.get(title=page_name).edit_url
-    articles = Article.objects.filter(page__title=page_name)
+    articles = list(Article.objects.filter(page__title=page_name))
+    articles.sort(key=lambda x: x.pub_date, reverse=True)
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
@@ -27,6 +28,17 @@ def render_edit_page_based_on_template(request, page_name):
     return render(request, 'edit_page.html', context={'page_name': page_name, 'form': form, 'articles': articles})
 
 
+def render_page_based_on_index_template(request, page_name):
+    pages = Page.objects.all()
+    articles = list(Article.objects.filter(page__title=page_name))
+    articles.sort(key=lambda x: x.pub_date, reverse=True)
+    default_pages_dict = {}
+    for page in pages:
+        if page.title not in ('Główna', page_name):
+            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
+    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': page_name, 'articles': articles})
+
+
 @login_required
 @user_passes_test(is_superuser)
 def add_main(request):
@@ -38,7 +50,8 @@ def add_main(request):
 def add_news(request):
     page_name = 'Aktualności'
     edit_url = Page.objects.get(title=page_name).edit_url
-    articles = Article.objects.filter(page__title=page_name)
+    articles = list(Article.objects.filter(page__title=page_name))
+    articles.sort(key=lambda x: x.pub_date, reverse=True)
     if request.method == 'POST':
         show_on_whiteboard = 'show_on_whiteboard' in request.POST
         form = ArticleForm(request.POST)
@@ -78,22 +91,14 @@ def add_contact(request):
     return render_edit_page_based_on_template(request, 'Kontakt')
 
 
-def render_page_based_on_index_template(request, page_name):
-    pages = Page.objects.all()
-    articles = Article.objects.filter(page__title=page_name)
-    default_pages_dict = {}
-    for page in pages:
-        if page.title not in ('Główna', page_name):
-            default_pages_dict.update({page.title: page.page_url.split('/')[0]})
-    return render(request, 'index.html', {'default_pages_dict': default_pages_dict, 'current_page_name': page_name, 'articles': articles})
-
-
 def index(request):
     page_name = 'Główna'
     pages = Page.objects.all()
-    articles = Article.objects.filter(page__title=page_name)
+    articles = list(Article.objects.filter(page__title=page_name))
+    articles.sort(key=lambda x: x.pub_date, reverse=True)
     news_articles = Article.objects.filter(page__title='Aktualności')
-    news_articles = news_articles.filter(show_on_whiteboard=True)
+    news_articles = list(news_articles.filter(show_on_whiteboard=True))
+    news_articles.sort(key=lambda x: x.pub_date, reverse=True)
     default_pages_dict = {}
     for page in pages:
         if page.title not in ('Główna', page_name):
@@ -119,7 +124,8 @@ def privacy_policy(request):
 
 def contact(request):
     pages = Page.objects.all()
-    articles = Article.objects.filter(page__title='Kontakt')
+    articles = list(Article.objects.filter(page__title='Kontakt'))
+    articles.sort(key=lambda x: x.pub_date, reverse=True)
     default_pages_dict = {}
     for page in pages:
         if page.title not in ('Główna', 'Kontakt'):

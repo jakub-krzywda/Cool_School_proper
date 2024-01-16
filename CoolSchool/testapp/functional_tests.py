@@ -603,9 +603,11 @@ class FunctionalTests(LiveServerTestCase):
         whiteboard = self.wait.until(EC.presence_of_element_located((By.ID, "whiteboard")))
         # 8. User clicks on the link on the whiteboard
         whiteboard_links = whiteboard.find_elements(By.TAG_NAME, "a")
+        link_url = whiteboard_links[0].get_attribute("href")
+        article_id = link_url.split('/')[4]
         whiteboard_links[0].click()
         # 9. Link redirects user to the news page and anchor for previously added article
-        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}#Test-title")
+        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}{article_id}")
 
     def test_whiteboard_present_on_index_page(self):
         # Fixture:
@@ -625,12 +627,11 @@ class FunctionalTests(LiveServerTestCase):
         content_form = self.browser.find_element(By.XPATH, "/html/body")
         ckeditor_form.click()
         content_form.send_keys('Test content')
-
+        self.browser.maximize_window()
         whiteboard_checkbox = self.browser.find_element(By.ID, "show_on_whiteboard")
         whiteboard_checkbox.click()
 
         save_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit']")))
-        self.browser.maximize_window()
         save_button.click()
         # Actual test:
         # 1. User goes to main page
@@ -639,9 +640,11 @@ class FunctionalTests(LiveServerTestCase):
         whiteboard = self.wait.until(EC.presence_of_element_located((By.ID, "whiteboard")))
         # 3. User clicks on the link on the whiteboard
         whiteboard_links = whiteboard.find_elements(By.TAG_NAME, "a")
+        link_url = whiteboard_links[0].get_attribute("href")
+        article_id = link_url.split('/')[4]
         whiteboard_links[0].click()
         # 4. Link redirects user to the news page and anchor for previously added article
-        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}#Test-title")
+        self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES['Aktualności']['url']}{article_id}")
 
     def test_deleting_articles(self):
         # Fixture:

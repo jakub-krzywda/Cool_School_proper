@@ -28,9 +28,9 @@ class ArticlesAppTests(LiveServerTestCase):
 
         for page in Page.objects.all():
             Article.objects.get_or_create(title='Test Title1', content='Test Content', pub_date=timezone.now(),
-                                          page=page)
+                                          page=page, show_on_whiteboard=True)
             Article.objects.get_or_create(title='Test Title2', content='Test Content', pub_date=timezone.now(),
-                                          page=page)
+                                          page=page, show_on_whiteboard=False)
 
     def tearDown(self) -> None:
         pass
@@ -125,7 +125,7 @@ class ArticlesAppTests(LiveServerTestCase):
                                           page=page)
             response = self.client.get(f"/{urls['url']}")
             site_tree = html.fromstring(response.content)
-            article_title = site_tree.xpath("//article/h1")[2].text
+            article_title = site_tree.xpath("//article/h1")[0].text
             self.assertEqual(article_title, 'Test Title')
 
     def test_edit_pages_urls(self):
@@ -168,7 +168,7 @@ class ArticlesAppTests(LiveServerTestCase):
             self.assertEqual(response.status_code, 302, f"Url: {page.edit_url} is not correct")
             response = self.client.get(f'/{page.page_url}')
             site_tree = html.fromstring(response.content)
-            article_title = site_tree.xpath("//article/h1")[2]
+            article_title = site_tree.xpath("//article/h1")[0]
             self.assertIn('Test Title3', article_title.text)
             self.assertIn('Test Content3', response.content.decode('utf-8'))
 
@@ -206,3 +206,28 @@ class ArticlesAppTests(LiveServerTestCase):
         site_tree = html.fromstring(response.content)
         whiteboard = site_tree.xpath("//ul[@id='whiteboard']")
         self.assertEqual(len(whiteboard), 1)
+
+    def test_whiteboard_not_present_on_other_pages(self):
+        pages = Page.objects.all()
+        pages = [page for page in pages if page.title != 'Główna']
+        for page in pages:
+            response = self.client.get(f'/{page.page_url}')
+            site_tree = html.fromstring(response.content)
+            whiteboard = site_tree.xpath("//ul[@id='whiteboard']")
+            self.assertFalse(whiteboard)
+
+    def test_whiteboard_links_are_correct(self):
+        response = self.client.get('/')
+        site_tree = html.fromstring(response.content)
+        whiteboard = site_tree.xpath("//ul[@id='whiteboard']/li/a")
+        self.assertEqual(len(whiteboard), 1)
+        self.assertTrue(whiteboard[0].attrib['href'].startswith('/news/#'))
+
+    def test_articles_are_in_order_from_newest_to_oldest(self):
+        pages = Page.objects.all()
+        for page in pages:
+            response = self.client.get(f'/{page.page_url}')
+            site_tree = html.fromstring(response.content)
+            articles = site_tree.xpath("//article/h1")
+            articles = [article.text for article in articles]
+            self.assertEqual(articles, ['Test Title2', 'Test Title1'], f'Articles are not in order on page {page.title}')

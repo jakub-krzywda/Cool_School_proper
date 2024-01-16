@@ -51,14 +51,14 @@
                     <img id="imgWhiteboard" src="{% static 'img/tarcza.jpg' %}">
                     <ul class="list-group" id="whiteboard">
                         {% for news_article in news_articles %}
-                            <li class="list-group-item"><a href="http://www.wp.pl">{{ news_article.title }}</a></li>
+                            <li class="list-group-item"><a href="{% url 'news' %}#article_{{ news_article.id }}">{{ news_article.title }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
             {% endif %}
             {% for article in articles %}
                 <article>
-                    <h1>{{ article.title }}</h1>
+                    <h1 id="article_{{ article.id }}">{{ article.title }}</h1>
                     {{ article.content|safe }}
                 </article>
             {% endfor %}
