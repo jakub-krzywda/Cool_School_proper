@@ -20,12 +20,12 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid" id="nav_top">
         <a class="navbar-brand" href="{% url 'index' %}">
-            <img id="imgLogo" src="{% static 'img/logo2.png' %}"></a>
+            <img id="imgLogo" class="fade-in" src="{% static 'img/logo2.png' %}"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse mx-5" id="navbarNav">
+        <div class="collapse navbar-collapse mx-5 fade-in" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if current_page_name != "Główna" %}
                     <li class="nav-item">
