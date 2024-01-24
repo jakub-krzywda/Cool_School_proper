@@ -56,7 +56,9 @@ jobs:
 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Run tests
-        run: python manage.py test
+        run: |
+          cd CoolSchool
+          python manage.py test
       
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
