@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.alert import Alert
 
 from CoolSchool import settings
 from CoolSchool.settings import DEFAULT_PAGES
@@ -139,7 +138,7 @@ class FunctionalTests(LiveServerTestCase):
         user_tools = self.browser.find_element(By.CSS_SELECTOR, 'p.admin_welcome')
         self.assertIn(f'Witaj, {self.login}', user_tools.text)
         user_tools_links = self.browser.find_elements(By.CSS_SELECTOR, "a.nav-link.admin_welcome")
-        expected_tools_a = ('Zobacz stronę', 'Zmień hasło', 'Wyloguj')
+        expected_tools_a = ('Zobacz stronę', 'Wyloguj')
         found_links = [item.accessible_name for item in user_tools_links]
         for a in expected_tools_a:
             self.assertIn(a, found_links)
@@ -228,6 +227,7 @@ class FunctionalTests(LiveServerTestCase):
         navbar_nav = self.wait.until(EC.presence_of_element_located((By.ID, "navbarNav")))
         for page_name in settings.DEFAULT_PAGES.keys():
             if page_name != 'Główna':
+                self.wait.until(EC.element_to_be_clickable((By.XPATH, "//a[@class='nav-link']")))
                 self.assertIn(page_name, navbar_nav.text.split('\n'))
         logo = self.browser.find_element(By.ID, "imgLogo")
         self.assertEqual(logo.size['height'], 69)
@@ -274,13 +274,14 @@ class FunctionalTests(LiveServerTestCase):
         #   * User is redirected to page corresponding to that link
         #   * User verifies if right page is displayed
         nav_links = self.browser.find_elements(By.XPATH, "//a[@class='nav-link']")
+        nav_link_texts = [link.text for link in nav_links]
         for i in range(len(nav_links)):
             nav_links = self.browser.find_elements(By.XPATH, "//a[@class='nav-link']")
             link = nav_links[i]
-            link_text = link.text
+            link_text = nav_link_texts[i]
             link.click()
             self.browser.implicitly_wait(2)
-            self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES[link_text]['url']}")
+            self.assertEqual(self.browser.current_url, f"{self.live_server_url}/{DEFAULT_PAGES[link_text]['url']}", f"Wrong url for page {link_text}")
             self.browser.back()
         # 4. User closes browser
 

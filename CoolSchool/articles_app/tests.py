@@ -204,7 +204,7 @@ class ArticlesAppTests(LiveServerTestCase):
     def test_whiteboard_present_on_main_page(self):
         response = self.client.get('/')
         site_tree = html.fromstring(response.content)
-        whiteboard = site_tree.xpath("//ul[@id='whiteboard']")
+        whiteboard = site_tree.xpath("//div[@id='whiteboard']")
         self.assertEqual(len(whiteboard), 1)
 
     def test_whiteboard_not_present_on_other_pages(self):
@@ -219,7 +219,7 @@ class ArticlesAppTests(LiveServerTestCase):
     def test_whiteboard_links_are_correct(self):
         response = self.client.get('/')
         site_tree = html.fromstring(response.content)
-        whiteboard = site_tree.xpath("//ul[@id='whiteboard']/li/a")
+        whiteboard = site_tree.xpath("//div[@id='whiteboard']/div/div/ul/li/a")
         self.assertEqual(len(whiteboard), 1)
         self.assertTrue(whiteboard[0].attrib['href'].startswith('/news/#'))
 
