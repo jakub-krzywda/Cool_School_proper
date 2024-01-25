@@ -1,0 +1,160 @@
+body {
+    font-family: 'Open Sans Condensed', sans-serif;
+    background: url("../img/background.jpg") no-repeat fixed center;
+    background-size: contain;
+}
+
+#nav_top {
+    background-color: #60b62f;
+}
+
+li.nav-item {
+    background-color: #00923f;
+    margin: 0.2rem;
+    border-radius: 3px;
+    padding: 0.2rem;
+}
+
+li.nav-item a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+li.nav-item a[aria-current="page"] {
+    color: black;
+}
+
+li.nav-item:hover {
+    color: black;
+}
+
+.navbar-collapse a.nav-link {
+    padding-left: 1rem;
+}
+
+h1 {
+    text-align: center;
+    font-weight: bold;
+
+}
+
+#whiteboard {
+    background-color: #60b62f;
+    border-radius: 5px;
+    border-color: #00923f;
+    border-style: solid;
+    border-width: 3px;
+    list-style: circle
+}
+
+li.list-group-item {
+    background-color: #60b62f;
+    border: none;;
+}
+
+li.list-group-item a {
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+li.list-group-item a:hover {
+    color: #00923f;
+}
+
+#imgWhiteboard {
+    width: 100%;
+    height: auto;
+    margin: 2rem;
+}
+
+ul.list-group {
+    margin: 1rem;
+    padding: 1rem;
+}
+
+#whiteboard_title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 2rem;
+    color: white;
+    background-color: #00923f;
+    border-radius: 5px;
+    margin: 1rem;
+    border-width: 3px;
+}
+
+#other_title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 2rem;
+    color: white;
+    background-color: slategray;
+    border-radius: 5px;
+    margin: 1rem;
+    border-width: 3px;
+}
+
+article h1 {
+    font-variant: small-caps;
+    padding: 1rem;
+}
+
+article {
+    border-color: #00923f;
+    border-width: 3px;
+    border-radius: 10px;
+    border-style: solid;
+    margin-top: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+    font-size: 1.2rem;
+}
+
+#mapa {
+    margin: 2rem;
+}
+
+iframe {
+    /* center map */
+    display: block;
+    margin: auto;
+    width: 100%;
+    padding: 2rem;
+}
+
+p.nav-link.admin_welcome {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+#pages_caption {
+    font-size: 1.5rem;
+}
+
+li.page_name a{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+body > div > div > div.col-8 > article:nth-child(3) > table > tbody > tr > td {
+    font-size: 1.3rem;
+    border: solid;
+    padding: 1rem;
+}
+
+table {
+    margin: auto;
+}
+
+.fade-in {
+    animation: fadeInAnimation 2s;
+}
+
+@keyframes fadeInAnimation {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
