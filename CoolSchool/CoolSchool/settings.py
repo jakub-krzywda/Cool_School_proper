@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-_g8*b_dkj9-1fq@4@4198^g5&*t#q)+*be@utfi_(_o=#uvty%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'coolschoolbochnia.azurewebsites.net']
 
 # Application definition
 
@@ -134,3 +134,5 @@ DEFAULT_PAGES = {
     'Polityka Prywatności': {'url': 'privacy_policy/', 'edit_url': '/add_article/privacy_policy/'},
     'Kontakt': {'url': 'contact/', 'edit_url': '/add_article/contact/'}
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://coolschoolbochnia.azurewebsites.net']
