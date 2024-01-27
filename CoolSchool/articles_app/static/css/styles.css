@@ -45,12 +45,11 @@ h1 {
     border-color: #00923f;
     border-style: solid;
     border-width: 3px;
-    list-style: circle
 }
 
 li.list-group-item {
     background-color: #60b62f;
-    border: none;;
+    border: none;
 }
 
 li.list-group-item a {
@@ -64,9 +63,9 @@ li.list-group-item a:hover {
 }
 
 #imgWhiteboard {
-    width: 100%;
+    max-width: 100%;
     height: auto;
-    margin: 2rem;
+    margin: 0.5rem;
 }
 
 ul.list-group {
@@ -157,4 +156,9 @@ table {
 @keyframes fadeInAnimation {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+#shield {
+    height: auto;
+    margin-top: 1rem;
 }

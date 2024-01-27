@@ -56,10 +56,10 @@
                 </div>
                 <div class="container fade-in" id="whiteboard">
                     <div class="row">
-                        <div class="col-3">
+                        <div id='shield' class="col-md-3">
                             <img id="imgWhiteboard" src="{% static 'img/tarcza.jpg' %}">
                         </div>
-                        <div class="col-9">
+                        <div class="col-md-9">
                             <ul class="list-group">
                                 {% for news_article in news_articles %}
                                     <li class="list-group-item"><a href="{% url 'news' %}#article_{{ news_article.id }}">{{ news_article.title }}</a></li>
