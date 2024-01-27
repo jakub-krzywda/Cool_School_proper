@@ -65,7 +65,7 @@ jobs:
         with:
           name: python-app
           path: |
-            .
+            ./CoolSchool
             !venv/
 
   deploy:
