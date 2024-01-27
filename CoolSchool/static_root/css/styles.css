@@ -45,12 +45,11 @@ h1 {
     border-color: #00923f;
     border-style: solid;
     border-width: 3px;
-    list-style: circle
 }
 
 li.list-group-item {
     background-color: #60b62f;
-    border: none;;
+    border: none;
 }
 
 li.list-group-item a {
@@ -64,9 +63,16 @@ li.list-group-item a:hover {
 }
 
 #imgWhiteboard {
-    width: 100%;
+    max-width: 100%;
     height: auto;
-    margin: 2rem;
+    margin: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    #imgWhiteboard {
+        display: none;
+    }
+
 }
 
 ul.list-group {
@@ -113,6 +119,15 @@ article {
     font-size: 1.2rem;
 }
 
+@media (max-width: 768px) {
+    article {
+        font-size: 1rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+}
+
 #mapa {
     margin: 2rem;
 }
@@ -146,8 +161,12 @@ body > div > div > div.col-8 > article:nth-child(3) > table > tbody > tr > td {
     padding: 1rem;
 }
 
-table {
-    margin: auto;
+@media (max-width: 768px) {
+    body > div > div > div.col-8 > article:nth-child(3) > table > tbody > tr > td {
+        font-size: 0.7rem;
+        border: solid;
+        padding: 0.5rem;
+    }
 }
 
 .fade-in {
@@ -157,4 +176,9 @@ table {
 @keyframes fadeInAnimation {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+#shield {
+    height: auto;
+    margin-top: 1rem;
 }
