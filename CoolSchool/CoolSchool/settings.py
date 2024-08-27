@@ -24,7 +24,7 @@ CKEDITOR_UPLOAD_PATH = 'ckeditor_uploads/'
 SECRET_KEY = 'django-insecure-_g8*b_dkj9-1fq@4@4198^g5&*t#q)+*be@utfi_(_o=#uvty%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'coolschoolbochnia.azurewebsites.net']
 
