@@ -93,5 +93,5 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           ls -a
-          pip install -r CoolSchool/requirements.txt
+          pip install -r requirements.txt
         shell: bash
