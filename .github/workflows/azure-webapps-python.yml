@@ -90,5 +90,5 @@ jobs:
       # Install dependencies in Azure environment
       - name: Install dependencies on Azure
         run: |
-          pip install -r ../requirements.txt
+          pip install -r ./CoolSchool/requirements.txt
         shell: bash
