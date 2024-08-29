@@ -90,6 +90,7 @@ jobs:
       - name: Change working directory
         run: |
           cd ${{ github.workspace }}
+          cd ..
           ls -a
 
       # Install dependencies in Azure environment
