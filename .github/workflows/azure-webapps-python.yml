@@ -48,6 +48,7 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
+          ls -a
           pip install -r ${{ github.workspace }}/requirements.txt
 
       - name: Run tests
